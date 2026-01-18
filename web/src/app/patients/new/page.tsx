@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { requireAuthHeaders } from "../../../lib/api"; // ← 追加
 
 type Sex = "male" | "female";
 
@@ -79,13 +80,11 @@ export default function PatientNewPage() {
       return false;
     }
 
-    // date inputでも念のため軽チェック
     if (!/^\d{4}-\d{2}-\d{2}$/.test(form.birth_date.trim())) {
       setError("生年月日は YYYY-MM-DD 形式で入力してください（例：2016-05-10）");
       return false;
     }
 
-    // 電話：入っているなら数字のみ＆桁数（日本の携帯/固定のざっくり想定）
     const phone = form.guardian_phone.trim();
     if (phone) {
       if (!/^\d+$/.test(phone)) {
@@ -118,17 +117,27 @@ export default function PatientNewPage() {
         clinic_id: Number(clinicId),
         last_name: form.last_name.trim(),
         first_name: form.first_name.trim(),
-        birth_date: form.birth_date.trim(), // API側で CAST(:birth_date AS date)
+        birth_date: form.birth_date.trim(),
         sex: form.sex as Sex,
         school_name: form.school_name.trim() || null,
         guardian_name: form.guardian_name.trim() || null,
-        guardian_phone: form.guardian_phone.trim() || null, // digits only
+        guardian_phone: form.guardian_phone.trim() || null,
         notes: form.notes.trim() || null,
       };
 
+      // Authorization を必ず付与する
+      let headers;
+      try {
+        headers = requireAuthHeaders();
+      } catch (e) {
+        localStorage.removeItem("access_token");
+        router.push("/login");
+        return;
+      }
+
       const res = await fetch(`${apiBase}/patients`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(payload),
       });
 

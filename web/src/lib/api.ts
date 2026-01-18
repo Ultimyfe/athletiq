@@ -1,16 +1,16 @@
-// 共通 API ヘルパ
+// web/src/lib/api.ts
 export function getApiBaseUrl(): string {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!base) {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL is not set (.env.local)");
+    throw new Error("NEXT_PUBLIC_API_BASE_URL が未設定です (.env.local を確認)");
   }
   return base.replace(/\/+$/, "");
 }
 
 /**
- * ブラウザ実行時に Authorization を含むヘッダを返します。
- * - サーバーサイド実行時（SSR等）は Content-Type のみ返します。
- * - トークンがない場合は Authorization を含めないので、呼び出し元でログイン遷移などを行ってください。
+ * ブラウザ実行時に Authorization を含むヘッダを返す
+ * - サーバサイド実行時は Content-Type のみ返す
+ * - トークンがない場合は Authorization を含めない（呼び出し元でログイン遷移）
  */
 export function getAuthHeaders(): Record<string, string> {
   if (typeof window === "undefined") {
@@ -25,8 +25,8 @@ export function getAuthHeaders(): Record<string, string> {
 }
 
 /**
- * Authorization ヘッダが必須な呼び出しで使うユーティリティ。
- * トークンが無ければ例外を投げる（呼び出し元でログイン遷移を行う想定）。
+ * Authorization が必須な場合に使用するユーティリティ。
+ * トークンが無ければ例外を投げる（呼び出し元でログイン処理へ誘導してください）。
  */
 export function requireAuthHeaders(): Record<string, string> {
   const h = getAuthHeaders();
