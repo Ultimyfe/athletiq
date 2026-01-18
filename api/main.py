@@ -18,8 +18,13 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+
+        # 本番/固定ドメイン（ここ重要）
+        "https://ainext-one.vercel.app",
+        "https://ainext-git-main-ultimyfes-projects.vercel.app",
+        # もし今見ているのがこれならそれも
+        # "https://ainext-xxxxx-ultimyfes-projects.vercel.app",
     ],
-    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
