@@ -89,11 +89,11 @@ export default function SignupPage() {
         throw new Error(`signup api error: ${res.status} ${msg}`);
       }
 
-      setOkMsg("登録が完了しました。ログイン画面へ移動します…");
+      setOkMsg("登録が完了しました。トップ画面へ移動します…");
 
       // 2) 少し見せてから /login へ
       setTimeout(() => {
-        router.push("/login");
+        router.push("/patients");
       }, 600);
     } catch (e: any) {
       setErr(String(e?.message ?? e));
