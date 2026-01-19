@@ -19,6 +19,8 @@ type SignupPayload = {
 type LoginResponse = {
   access_token: string;
   token_type?: string;
+  clinic_id?: number;
+  clinic_name?: string;
 };
 
 export default function SignupPage() {
@@ -92,7 +94,7 @@ export default function SignupPage() {
         throw new Error(`signup api error: ${res.status} ${msg}`);
       }
 
-      // 2) signup後に、そのままloginしてトークン取得
+      // 2) signup直後に自動ログインして token を取得
       const loginRes = await fetch(`${base}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -120,12 +122,20 @@ export default function SignupPage() {
         throw new Error("ログイントークンが取得できませんでした（access_token が空です）。");
       }
 
-      // 3) 既存の実装と同じキー名で保存
+      // 3) patients配下が参照するキー名で保存
       localStorage.setItem("access_token", token);
+
+      // ※ patients/new 等で参照されるので、返ってくる場合は保存
+      if (typeof loginJson.clinic_id === "number") {
+        localStorage.setItem("clinic_id", String(loginJson.clinic_id));
+      }
+      if (typeof loginJson.clinic_name === "string") {
+        localStorage.setItem("clinic_name", loginJson.clinic_name);
+      }
 
       setOkMsg("登録が完了しました。受検者一覧へ移動します…");
 
-      // 4) patientsへ
+      // 4) /patients へ
       setTimeout(() => {
         router.push("/patients");
       }, 400);
