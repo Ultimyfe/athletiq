@@ -20,7 +20,6 @@ app.add_middleware(
         "https://ainext-ej59q7m4t-ultimyfes-projects.vercel.app",
     ],
     allow_credentials=True,
-    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
