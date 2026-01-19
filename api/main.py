@@ -15,7 +15,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=r"^https://ainext-.*-ultimyfes-projects\.vercel\.app$",
+    allow_origins=[
+        "https://ainext-igd6ownn16-ultimyfes-projects.vercel.app",
+        # r"^https://ainext-.*-ultimyfes-projects\.vercel\.app$",
+        "https://ai-next1.vercel.app/",
+    ]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
