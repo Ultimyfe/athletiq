@@ -19,7 +19,7 @@ app.add_middleware(
     allow_origin_regex=r"^https://ainext-[a-z0-9-]+-ultimyfes-projects\.vercel\.app$",
     # 本番ドメイン（固定）も許可
     allow_origins=[
-        "https://ai-next1.vercel.app/",
+        "https://ai-next1.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
