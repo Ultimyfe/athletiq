@@ -16,10 +16,11 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
+        # "https://ainext-ej59q7m4t-ultimyfes-projects.vercel.app",
+        "*"
     ],
-    allow_credentials=True,
+    # allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
