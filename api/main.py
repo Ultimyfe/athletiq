@@ -15,11 +15,14 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    # Vercel のプレビューURLをまとめて許可（ainext-xxxxx-ultimyfes-projects.vercel.app）
+    # Vercel Preview（ainext-xxxxx-ultimyfes-projects.vercel.app）
     allow_origin_regex=r"^https://ainext-[a-z0-9-]+-ultimyfes-projects\.vercel\.app$",
-    # 本番ドメイン（固定）も許可
+    # 明示許可（固定ドメイン / ローカル）
     allow_origins=[
         "https://ai-next1.vercel.app",
+        "https://ainext-one.vercel.app",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
