@@ -1,172 +1,17 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import ResultClient from "./ResultClient";
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="p-6">読み込み中…</div>}>
+    <Suspense fallback={<div className="p-6 text-sm text-slate-600">読み込み中…</div>}>
       <ResultClient />
     </Suspense>
   );
 }
-// "use client";
-// export const dynamic = "force-dynamic";
-// import { useEffect, useMemo, useState } from "react";
-// import { useRouter, useSearchParams } from "next/navigation";
 
-// function cn(...xs: (string | false | null | undefined)[]) {
-//   return xs.filter(Boolean).join(" ");
-// }
 
-// type DiagnoseResult = {
-//   meta?: { measured_at?: string | null } | null;
 
-//   user?: {
-//     name?: string | null;
-//     display_name?: string | null;
-//     sex?: "male" | "female" | string | null;
-//     age?: number | null;
-//     age_months?: number | null;
-//     height_cm?: number | null;
-//     weight_kg?: number | null;
-//     school_name?: string | null;
-//     patient_id?: number | null;
-//     clinic_id?: number | null;
-//   } | null;
 
-//   summary?: {
-//     age?: number | null;
-//     age_months?: number | null;
-//     sex?: "male" | "female" | string | null;
-//     motor_age?: { value?: number | null; label?: string | null; message?: string | null } | null;
-//     type?: {
-//       key?: string | null;
-//       label?: string | null;
-//       desc?: string | null;
-//       title?: string | null;
-//       description?: string | null;
-//     } | null;
-//     class?: { key?: "beginner" | "standard" | "expert" | string; label?: string | null } | null;
-//   } | null;
-
-//   // ★ APIが返している形（root直下）
-//   abilities?: Array<{
-//     key: string;
-//     label?: string | null;
-//     t?: number | null;
-//     decile?: number | null;
-//     bar_pct?: number | null; // 0-100
-//   }> | null;
-
-//   tests?: Array<{
-//     key: string;
-//     label?: string | null;
-//     unit?: string | null;
-//     value?: number | string | null;
-//     t?: number | null;
-//     decile?: number | null;
-//     bar_pct?: number | null; // 0-100
-//     rank_label?: string | null; // 強み/平均付近/伸びしろ
-//   }> | null;
-
-//   sports_top6?: Array<{
-//     sport: string;
-//     emoji?: string | null;
-//     score?: number | null;
-//     reason?: string | null;
-//   }> | null;
-
-//   trainings_focus?: Array<{
-//     id?: number | null;
-//     title: string;
-//     ability_key?: string | null;
-//     ability_label?: string | null;
-//     desc?: string | null;
-//     frequency?: string | null;
-//   }> | null;
-
-//   guardian_message?: string | null;
-//   month_goal?: string | null;
-// };
-
-// function formatSex(sex?: string | null) {
-//   if (sex === "male") return "男子";
-//   if (sex === "female") return "女子";
-//   return "";
-// }
-
-// function _fmt1(n: any) {
-//   const v = Number(n);
-//   if (!Number.isFinite(v)) return "";
-//   return v.toFixed(1);
-// }
-
-// function _fmtValue(v: any) {
-//   const n = Number(v);
-//   if (!Number.isFinite(n)) return "";
-//   if (Number.isInteger(n)) return n.toFixed(0);
-//   return n.toFixed(1);
-// }
-
-// function classBadge(
-//   cls?: { key?: "beginner" | "standard" | "expert" | string; label?: string | null } | null
-// ) {
-//   const key = cls?.key ?? "";
-//   const label = cls?.label ?? "";
-//   if (!label) return null;
-
-//   const base =
-//     "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-extrabold ring-1 ring-inset";
-
-//   if (key === "expert") {
-//     return (
-//       <span className={cn(base, "bg-emerald-50 text-emerald-700 ring-emerald-200")}>
-//         🏅 {label}
-//       </span>
-//     );
-//   }
-//   if (key === "standard") {
-//     return (
-//       <span className={cn(base, "bg-blue-50 text-blue-700 ring-blue-200")}>
-//         ✅ {label}
-//       </span>
-//     );
-//   }
-//   if (key === "beginner") {
-//     return (
-//       <span className={cn(base, "bg-amber-50 text-amber-700 ring-amber-200")}>
-//         🌱 {label}
-//       </span>
-//     );
-//   }
-//   return (
-//     <span className={cn(base, "bg-slate-50 text-slate-700 ring-slate-200")}>
-//       {label}
-//     </span>
-//   );
-// }
-
-// function gradeToneFromPct(pct: number) {
-//   // pct: 0-100
-//   if (pct < 40) {
-//     return {
-//       barFrom: "from-amber-400",
-//       barTo: "to-orange-500",
-//       note: "伸びしろ",
-//     };
-//   }
-//   if (pct < 70) {
-//     return {
-//       barFrom: "from-sky-400",
-//       barTo: "to-indigo-500",
-//       note: "平均付近",
-//     };
-//   }
-//   return {
-//     barFrom: "from-emerald-400",
-//     barTo: "to-teal-500",
-//     note: "強み",
-//   };
-// }
 
 // export default function ResultPage() {
 //   const router = useRouter();

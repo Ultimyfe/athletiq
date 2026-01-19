@@ -126,9 +126,20 @@ export default function PatientNewPage() {
         notes: form.notes.trim() || null,
       };
 
+      // const res = await fetch(`${apiBase}/patients`, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(payload),
+      // });
+
+      const token = localStorage.getItem("access_token");
+
       const res = await fetch(`${apiBase}/patients`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(payload),
       });
 

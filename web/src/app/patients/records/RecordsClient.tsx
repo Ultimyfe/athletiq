@@ -1,7 +1,7 @@
 "use client";
 
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 
 type RecordItem = {
   id: number;
@@ -27,13 +27,19 @@ function fmtDate(s?: string) {
 }
 
 export default function RecordsClient() {
-  const router = useRouter();
   const sp = useSearchParams();
+  const router = useRouter();
   const patientId = sp.get("patient_id");
 
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [items, setItems] = useState<RecordItem[]>([]);
+
+  const apiBase = useMemo(() => {
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL が未設定です");
+    return base.replace(/\/+$/, "");
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -51,9 +57,7 @@ export default function RecordsClient() {
         setLoading(true);
         setErr(null);
 
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
-
-        const res = await fetch(`${base}/records?patient_id=${encodeURIComponent(patientId)}`, {
+        const res = await fetch(`${apiBase}/records?patient_id=${encodeURIComponent(patientId)}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -80,9 +84,9 @@ export default function RecordsClient() {
         setLoading(false);
       }
     })();
-  }, [patientId, router]);
+  }, [patientId, router, apiBase]);
 
-  const title = "記録一覧";
+  const title = useMemo(() => `記録一覧`, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0b1630] via-[#0b2045] to-[#071127] px-4 py-10 text-slate-900">
@@ -98,35 +102,127 @@ export default function RecordsClient() {
 
           <button
             className="rounded-full bg-white/10 px-3 py-2 text-sm hover:bg-white/15"
-            onClick={() => {
-              /* 必要なら他の処理 */
-            }}
+            onClick={() => router.push(`/measure?patient_id=${encodeURIComponent(patientId ?? "")}`)}
           >
-            {title}
+            ＋ 新しく測定する
           </button>
         </div>
 
-        {err ? (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{err}</div>
-        ) : null}
+        {/* 本体 */}
+        <div className="rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <div className="border-b-4 border-[#173b7a] px-8 py-6">
+            <h1 className="text-xl font-bold text-[#173b7a]">{title}</h1>
+            <div className="mt-1 text-xs text-slate-500">patient_id: {patientId}</div>
+          </div>
 
-        <div className="rounded-2xl bg-white/10 px-6 py-5 text-white/90">
-          {loading ? (
-            <div>読み込み中…</div>
-          ) : items.length === 0 ? (
-            <div>記録が見つかりません</div>
-          ) : (
-            <ul className="space-y-3">
-              {items.map((it) => (
-                <li key={it.id} className="rounded-md bg-white/5 px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <div>{fmtDate(it.measured_at)}</div>
-                    <div className="text-sm text-white/70">{it.summary?.type?.label ?? ""}</div>
+          <section className="px-8 py-6">
+            {loading ? (
+              <div className="text-sm text-slate-600">読み込み中…</div>
+            ) : err ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+                <div className="text-sm font-bold text-amber-900">記録を取得できませんでした</div>
+                <div className="mt-2 whitespace-pre-wrap text-xs text-amber-900/80">{err}</div>
+              </div>
+            ) : items.length === 0 ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+                <div className="text-sm font-bold text-slate-800">まだ記録がありません</div>
+                <div className="mt-2 text-xs text-slate-600">
+                  「新しく測定する」から測定を行うと、ここに履歴が並びます。
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {items.map((r) => (
+                  <div key={r.id} className="rounded-xl border border-slate-200 px-5 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-xs font-bold text-slate-500">測定日</div>
+                        <div className="mt-1 text-lg font-extrabold text-slate-900">
+                          {fmtDate(r.measured_at)}
+                        </div>
+
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                          {r.summary?.class?.label ? (
+                            <span className="rounded-full bg-slate-100 px-3 py-1 font-bold text-slate-700">
+                              {r.summary.class.label}
+                            </span>
+                          ) : null}
+                          {r.summary?.type?.label ? (
+                            <span className="rounded-full bg-slate-100 px-3 py-1 font-bold text-slate-700">
+                              {r.summary.type.label}
+                            </span>
+                          ) : null}
+                          {r.summary?.motor_age?.value != null ? (
+                            <span className="rounded-full bg-slate-100 px-3 py-1 font-bold text-slate-700">
+                              運動器年齢：{r.summary.motor_age.value}歳
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          className={cn(
+                            "rounded-md bg-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-300"
+                          )}
+                          onClick={async () => {
+                            try {
+                              const token = localStorage.getItem("access_token");
+                              if (!token) {
+                                router.push("/login");
+                                return;
+                              }
+
+                              const url = `${apiBase}/records/${r.id}?patient_id=${encodeURIComponent(
+                                patientId ?? ""
+                              )}`;
+
+                              const res = await fetch(url, {
+                                cache: "no-store",
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+
+                              if (!res.ok) {
+                                const text = await res.text().catch(() => "");
+                                if (res.status === 401 || res.status === 403) {
+                                  localStorage.removeItem("access_token");
+                                  router.push("/login");
+                                  return;
+                                }
+                                throw new Error(`record detail api error: ${res.status} ${text}`);
+                              }
+
+                              const json = await res.json();
+
+                              // ✅ resultページが読むキーに合わせる（既存運用踏襲）
+                              // json.result が返ってくる前提（あなたのAPIの形）
+                              sessionStorage.setItem(
+                                "diagnose_result",
+                                JSON.stringify(json.result ?? json)
+                              );
+
+                              // ✅ 戻り先を付与（result側が使うなら）
+                              router.push(
+                                `/result?back=records&patient_id=${encodeURIComponent(patientId ?? "")}`
+                              );
+                            } catch (e: any) {
+                              alert(String(e?.message ?? e));
+                            }
+                          }}
+                        >
+                          結果を見る
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                ))}
+              </div>
+            )}
+          </section>
+
+          <div className="border-t px-8 py-6 text-xs text-slate-500">
+            ※ 「結果を見る」は /records/{`{id}`} を叩いて result を sessionStorage に入れて /result に遷移します
+          </div>
         </div>
       </div>
     </main>

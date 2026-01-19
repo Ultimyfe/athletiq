@@ -5,6 +5,10 @@ cloud-sql-python-connector[pg8000]
 pg8000
 google-cloud-secret-manager
 psycopg2-binary==2.9.9
-passlib[bcrypt]
-PyJWT
-pydantic[email]
+
+# 認証・JWT
+passlib[bcrypt]==1.7.4
+PyJWT==2.10.1
+
+# FastAPI / Pydantic 周り
+email-validator>=2.1.0
