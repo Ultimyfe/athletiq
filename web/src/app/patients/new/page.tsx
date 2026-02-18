@@ -51,17 +51,24 @@ export default function PatientNewPage() {
 
   const apiBase = useMemo(() => process.env.NEXT_PUBLIC_API_BASE_URL, []);
 
-  useEffect(() => {
-    const cid = localStorage.getItem("clinic_id");
-    const cname = localStorage.getItem("clinic_name") ?? "";
+useEffect(() => {
+  const token = localStorage.getItem("access_token");
+  const cid = localStorage.getItem("clinic_id");
+  const cname = localStorage.getItem("clinic_name") ?? "";
 
-    if (!cid) {
-      router.push("/login");
-      return;
-    }
-    setClinicId(cid);
-    setClinicName(cname);
-  }, [router]);
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+  
+  if (!cid) {
+    router.push("/login");
+    return;
+  }
+  
+  setClinicId(cid);
+  setClinicName(cname);
+}, [router]);
 
   const update = <K extends keyof FormState>(k: K, v: string) => {
     setForm((prev) => ({ ...prev, [k]: v }));
