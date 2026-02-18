@@ -652,7 +652,7 @@ export default function ClinicSettingsPage() {
             className="rounded-full px-3 py-2 text-sm hover:bg-white/10"
             onClick={goBack}
           >
-            ← 患者一覧へ
+            ← 受検者一覧へ
           </button>
 
           <div className="text-right">

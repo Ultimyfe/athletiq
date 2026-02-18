@@ -143,7 +143,7 @@ export default function LoginPage() {
                 {loading ? "ログイン中..." : "ログイン"}
               </button>
 
-              <div className="mt-4 text-center text-xs text-slate-400">※ログイン後、患者一覧へ移動します</div>
+              <div className="mt-4 text-center text-xs text-slate-400">※ログイン後、受検者一覧へ移動します</div>
 
               <div className="pt-2 text-center text-xs text-slate-500">
                 アカウントをお持ちでない方は{" "}

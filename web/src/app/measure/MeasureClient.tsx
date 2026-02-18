@@ -83,9 +83,9 @@
 // export default function MeasurePage() {
 //   const router = useRouter();
 //   const sp = useSearchParams();
+
 //   const apiBase = useMemo(() => process.env.NEXT_PUBLIC_API_BASE_URL, []);
 
-//   const [clinicId, setClinicId] = useState<string | null>(null);
 //   const [clinicName, setClinicName] = useState<string>("");
 //   const [patientId, setPatientId] = useState<string | null>(null);
 //   const [patient, setPatient] = useState<Patient | null>(null);
@@ -93,103 +93,64 @@
 //   const [form, setForm] = useState<FormState>(initialState);
 //   const [saving, setSaving] = useState(false);
 //   const [error, setError] = useState<string | null>(null);
+//   const [loadingPatient, setLoadingPatient] = useState(true);
 
-// //   useEffect(() => {
-// //     const cid = localStorage.getItem("clinic_id");
-// //     const cname = localStorage.getItem("clinic_name") ?? "";
-// //     const pid = sp.get("patient_id");
-
-// //     if (!cid) {
-// //       router.push("/login");
-// //       return;
-// //     }
-// //     if (!pid) {
-// //       router.push("/patients");
-// //       return;
-// //     }
-
-// //     setClinicId(cid);
-// //     setClinicName(cname);
-// //     setPatientId(pid);
-
-// //     const fetchPatient = async () => {
-// //       try {
-// //         setError(null);
-// //         const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-// //         if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL が未設定です");
-
-// //         const res = await fetch(`${base}/patients?clinic_id=${cid}`, {
-// //           method: "GET",
-// //           headers: { "Content-Type": "application/json" },
-// //         });
-// //         if (!res.ok) {
-// //           const txt = await res.text().catch(() => "");
-// //           throw new Error(txt || `患者一覧の取得に失敗しました (HTTP ${res.status})`);
-// //         }
-
-// //         const data = await res.json();
-// //         const items: Patient[] = Array.isArray(data.items) ? data.items : [];
-// //         const found = items.find((p) => String(p.id) === String(pid)) ?? null;
-// //         setPatient(found);
-// //       } catch (e: any) {
-// //         setError(e?.message ?? "不明なエラーが発生しました");
-// //       }
-// //     };
-
-// //     fetchPatient();
-// //   }, [router, sp]);
-
-//     useEffect(() => {
+//   useEffect(() => {
 //     const token = localStorage.getItem("access_token");
 //     const cname = localStorage.getItem("clinic_name") ?? "";
 //     const pid = sp.get("patient_id");
 
 //     if (!token) {
-//         router.push("/login");
-//         return;
+//       router.push("/login");
+//       return;
 //     }
 //     if (!pid) {
-//         router.push("/patients");
-//         return;
+//       router.push("/patients");
+//       return;
 //     }
 
 //     setClinicName(cname);
 //     setPatientId(pid);
 
 //     const fetchPatient = async () => {
-//         try {
+//       try {
+//         setLoadingPatient(true);
 //         setError(null);
+
 //         const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-//         if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL が未設定です");
+//         if (!base) throw new Error("NEXT_PUBLIC_API_BASE_URL が未設定です（web/.env.local を確認してください）");
 
 //         const res = await fetch(`${base}/patients/${encodeURIComponent(pid)}`, {
-//             method: "GET",
-//             headers: {
+//           method: "GET",
+//           headers: {
 //             "Content-Type": "application/json",
 //             Authorization: `Bearer ${token}`,
-//             },
-//             cache: "no-store",
+//           },
+//           cache: "no-store",
 //         });
 
+//         const txt = await res.text().catch(() => "");
 //         if (!res.ok) {
-//             const txt = await res.text().catch(() => "");
-//             if (res.status === 401 || res.status === 403) {
+//           if (res.status === 401 || res.status === 403) {
 //             localStorage.removeItem("access_token");
 //             router.push("/login");
 //             return;
-//             }
-//             throw new Error(txt || `患者情報の取得に失敗しました (HTTP ${res.status})`);
+//           }
+//           throw new Error(txt || `受検者情報の取得に失敗しました (HTTP ${res.status})`);
 //         }
 
-//         const p = (await res.json()) as Patient;
+//         const p = JSON.parse(txt) as Patient;
 //         setPatient(p);
-//         } catch (e: any) {
+//       } catch (e: any) {
+//         setPatient(null);
 //         setError(e?.message ?? "不明なエラーが発生しました");
-//         }
+//       } finally {
+//         setLoadingPatient(false);
+//       }
 //     };
 
 //     fetchPatient();
-//     }, [router, sp]);
+//   }, [router, sp]);
 
 //   const update = <K extends keyof FormState>(k: K, v: string) => {
 //     setForm((prev) => ({ ...prev, [k]: v }));
@@ -224,7 +185,7 @@
 //       return false;
 //     }
 
-//     // 数値チェック
+//     // 数値チェック（float）
 //     const floatKeys: (keyof FormState)[] = [
 //       "height_cm",
 //       "weight_kg",
@@ -248,6 +209,7 @@
 //       }
 //     }
 
+//     // 数値チェック（int）
 //     const intKeys: (keyof FormState)[] = ["squat_30s_cnt", "side_step_20s_cnt"];
 //     for (const k of intKeys) {
 //       const v = toInt(form[k].trim());
@@ -267,7 +229,7 @@
 //     }
 
 //     if (!patient) {
-//       setError("患者情報を取得できていません（少し待ってから再実行してください）");
+//       setError("受検者情報を取得できていません（少し待ってから再実行してください）");
 //       return false;
 //     }
 
@@ -275,7 +237,8 @@
 //   };
 
 //   const submit = async () => {
-//     if (!clinicId || !patientId) return;
+//     if (!patientId) return;
+
 //     if (!apiBase) {
 //       setError("NEXT_PUBLIC_API_BASE_URL が未設定です（.env.local を確認）");
 //       return;
@@ -283,11 +246,17 @@
 //     if (!validate()) return;
 //     if (!patient) return;
 
+//     const token = localStorage.getItem("access_token");
+//     if (!token) {
+//       router.push("/login");
+//       return;
+//     }
+
 //     setSaving(true);
 //     setError(null);
 
 //     try {
-//       // 必須値（validate済みの前提）
+//       // 必須値（validate済み）
 //       const gripBest = toFloat(form.grip_best_kg.trim());
 //       const standingJump = toFloat(form.standing_jump_cm.trim());
 //       const dash15 = toFloat(form.dash_15m_sec.trim());
@@ -296,65 +265,35 @@
 //       const sideStep20 = toInt(form.side_step_20s_cnt.trim());
 //       const ballThrow = toFloat(form.ball_throw_m.trim());
 
-//       // ★ API(scoring_service.py) に合わせる（age/sexは送らない：APIがpatientsから算出）
-//     //   const payload: Record<string, any> = {
-//     //     clinic_id: Number(clinicId),
-//     //     patient_id: Number(patientId),
+//       // ✅ clinic_id を送らない（JWT由来に統一）
+//       const payload: Record<string, any> = {
+//         patient_id: Number(patientId),
 
-//     //     // optional
-//     //     ...(form.height_cm.trim() ? { height_cm: toFloat(form.height_cm.trim()) } : {}),
-//     //     ...(form.weight_kg.trim() ? { weight_kg: toFloat(form.weight_kg.trim()) } : {}),
+//         ...(form.height_cm.trim() ? { height_cm: toFloat(form.height_cm.trim()) } : {}),
+//         ...(form.weight_kg.trim() ? { weight_kg: toFloat(form.weight_kg.trim()) } : {}),
 
-//     //     // 必須（API互換）
-//     //     grip_right: gripBest,
-//     //     grip_left: gripBest, // UIは「強い方1回」なので同値でOK（API側がmaxを取る）
-//     //     standing_jump: standingJump,
-//     //     dash_15m_sec: dash15,
-//     //     continuous_standing_jump: continuousJump,
-//     //     squat_30s: squat30,
-//     //     side_step: sideStep20,
-//     //     ball_throw: ballThrow,
-//     //   };
+//         // API互換
+//         grip_right: gripBest,
+//         grip_left: gripBest, // UIは「強い方1回」なので同値でOK
+//         standing_jump: standingJump,
+//         dash_15m_sec: dash15,
+//         continuous_standing_jump: continuousJump,
+//         squat_30s: squat30,
+//         side_step: sideStep20,
+//         ball_throw: ballThrow,
+//       };
 
-//     //   console.log("[measure] POST /diagnose payload =", payload);
+//       const res = await fetch(`${apiBase}/diagnose`, {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${token}`,
+//         },
+//         cache: "no-store",
+//         body: JSON.stringify(payload),
+//       });
 
-//     //   const res = await fetch(`${apiBase}/diagnose`, {
-//     //     method: "POST",
-//     //     headers: { "Content-Type": "application/json" },
-//     //     body: JSON.stringify(payload),
-//     //   });
-
-//     const token = localStorage.getItem("access_token");
-//     if (!token) { router.push("/login"); return; }
-
-//     // payload から clinic_id を消す
-//     const payload: Record<string, any> = {
-//     patient_id: Number(patientId),
-//     ...(form.height_cm.trim() ? { height_cm: toFloat(form.height_cm.trim()) } : {}),
-//     ...(form.weight_kg.trim() ? { weight_kg: toFloat(form.weight_kg.trim()) } : {}),
-//     grip_right: gripBest,
-//     grip_left: gripBest,
-//     standing_jump: standingJump,
-//     dash_15m_sec: dash15,
-//     continuous_standing_jump: continuousJump,
-//     squat_30s: squat30,
-//     side_step: sideStep20,
-//     ball_throw: ballThrow,
-//     };
-
-//     const res = await fetch(`${apiBase}/diagnose`, {
-//     method: "POST",
-//     headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${token}`,
-//     },
-//     body: JSON.stringify(payload),
-//     });
-
-//       // 400でも本文を吐く
 //       const txt = await res.text().catch(() => "");
-//       console.log("[measure] /diagnose status =", res.status);
-//       console.log("[measure] /diagnose raw body =", txt);
 
 //       if (!res.ok) {
 //         let msg = txt;
@@ -362,17 +301,22 @@
 //           const j = JSON.parse(txt);
 //           msg = j?.detail ?? txt;
 //         } catch {}
+//         if (res.status === 401 || res.status === 403) {
+//           localStorage.removeItem("access_token");
+//           router.push("/login");
+//           return;
+//         }
 //         throw new Error(msg || `診断に失敗しました (HTTP ${res.status})`);
 //       }
 
 //       const data = txt ? JSON.parse(txt) : null;
 
-//       // resultページで確実に表示できるように、最低限の表示用情報を補強
+//       // resultページで確実に表示できるように補強
 //       const enriched = {
 //         ...(data ?? {}),
 //         meta: {
 //           ...(data?.meta ?? {}),
-//           measured_at: (data?.meta?.measured_at ?? new Date().toISOString().slice(0, 10)),
+//           measured_at: data?.meta?.measured_at ?? new Date().toISOString().slice(0, 10),
 //         },
 //         user: {
 //           ...(data?.user ?? {}),
@@ -396,19 +340,26 @@
 //       <div className="mx-auto w-full max-w-4xl">
 //         {/* ヘッダー */}
 //         <div className="mb-6 flex items-center justify-between text-white/85">
-//           <button className="rounded-full px-3 py-2 text-sm hover:bg-white/10" onClick={() => router.push("/patients")}>
-//             ← 患者一覧に戻る
+//           <button
+//             className="rounded-full px-3 py-2 text-sm hover:bg-white/10"
+//             onClick={() => router.push("/patients")}
+//           >
+//             ← 受検者一覧に戻る
 //           </button>
 
 //           <div className="text-right">
 //             <div className="text-xs text-white/60">Athletiq Clinic Console</div>
 //             <div className="text-sm font-semibold text-white/80">
-//               {clinicName} {patientId ? <span className="text-white/60">/ patient_id: {patientId}</span> : null}
+//               {clinicName}{" "}
+//               {patientId ? <span className="text-white/60">/ patient_id: {patientId}</span> : null}
 //             </div>
 //           </div>
 //         </div>
 
-//         {patient ? (
+//         {/* 受検者カード */}
+//         {loadingPatient ? (
+//           <div className="mt-3 text-sm text-white/70">受検者情報を読み込み中…</div>
+//         ) : patient ? (
 //           <div className="mt-3 rounded-2xl bg-white/10 px-4 py-3 text-white/90 ring-1 ring-white/15">
 //             <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
 //               <div className="font-extrabold">
@@ -423,81 +374,98 @@
 //             </div>
 //           </div>
 //         ) : (
-//           <div className="mt-3 text-sm text-white/70">患者情報を読み込み中…</div>
+//           <div className="mt-3 text-sm text-white/70">受検者情報を取得できませんでした</div>
 //         )}
 
 //         <div className="mt-4 rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
 //           {/* 基本情報 */}
-//             {/* 基本情報 */}
-//             <section className="border-b px-8 py-6">
+//           <section className="border-b px-8 py-6">
 //             <h2 className="mb-4 text-lg font-extrabold text-[#173b7a]">基本情報</h2>
 
 //             {error ? (
-//                 <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+//               <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
 //                 {error}
-//                 </div>
+//               </div>
 //             ) : null}
-
-//             {/* 受検者情報（API連携：patients） */}
-//             <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-//                 <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-//                 <div className="text-xs font-bold text-slate-600">受検者名</div>
-//                 <div className="mt-1 text-base font-extrabold text-slate-900">
-//                     {patient ? `${patient.last_name} ${patient.first_name}` : "—"}
-//                 </div>
-//                 </div>
-
-//                 <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-//                 <div className="text-xs font-bold text-slate-600">年齢</div>
-//                 <div className="mt-1 text-base font-extrabold text-slate-900">
-//                     {patient ? calcAgeYMD(patient.birth_date).label : "—"}
-//                 </div>
-//                 </div>
-
-//                 <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 md:col-span-2">
-//                 <div className="text-xs font-bold text-slate-600">性別</div>
-//                 <div className="mt-1 text-base font-extrabold text-slate-900">
-//                     {patient ? formatSex(patient.sex) : "—"}
-//                 </div>
-//                 </div>
-//             </div>
 
 //             {/* 身長・体重（任意入力） */}
 //             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-//                 <Field label="身長（cm）" note="任意">
+//               <Field label="身長（cm）" note="任意">
 //                 <input
-//                     className="field-input"
-//                     inputMode="decimal"
-//                     placeholder="例：135.5"
-//                     value={form.height_cm}
-//                     onChange={(e) => update("height_cm", sanitizeFloatInput(e.target.value))}
+//                   className="mt-1 h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-[#173b7a] focus:outline-none"
+//                   inputMode="decimal"
+//                   placeholder="例：135.5"
+//                   value={form.height_cm}
+//                   onChange={(e) => update("height_cm", sanitizeFloatInput(e.target.value))}
 //                 />
-//                 </Field>
+//               </Field>
 
-//                 <Field label="体重（kg）" note="任意">
+//               <Field label="体重（kg）" note="任意">
 //                 <input
-//                     className="field-input"
-//                     inputMode="decimal"
-//                     placeholder="例：32.4"
-//                     value={form.weight_kg}
-//                     onChange={(e) => update("weight_kg", sanitizeFloatInput(e.target.value))}
+//                   className="mt-1 h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-[#173b7a] focus:outline-none"
+//                   inputMode="decimal"
+//                   placeholder="例：32.4"
+//                   value={form.weight_kg}
+//                   onChange={(e) => update("weight_kg", sanitizeFloatInput(e.target.value))}
 //                 />
-//                 </Field>
+//               </Field>
 //             </div>
-//             </section>
+//           </section>
 
 //           {/* 測定項目 */}
 //           <section className="border-b px-8 py-6">
 //             <h2 className="mb-4 text-lg font-extrabold text-[#173b7a]">測定項目</h2>
 
 //             <div className="space-y-4">
-//               <InputFloat label="握力" note="左右どちらか高い方1回（kg）" placeholder="例：22.0" value={form.grip_best_kg} onChange={(v) => update("grip_best_kg", v)} />
-//               <InputFloat label="立ち幅跳び" note="両足同時踏切（cm）" placeholder="例：155" value={form.standing_jump_cm} onChange={(v) => update("standing_jump_cm", v)} />
-//               <InputFloat label="15m走" note="立ちスタート（秒）" placeholder="例：3.10" value={form.dash_15m_sec} onChange={(v) => update("dash_15m_sec", v)} />
-//               <InputFloat label="連続立ち幅跳び" note="連続2回の合計距離（cm）" placeholder="例：440" value={form.continuous_jump_cm} onChange={(v) => update("continuous_jump_cm", v)} />
-//               <InputInt label="30秒スクワット" note="30秒間の回数（回）" placeholder="例：27" value={form.squat_30s_cnt} onChange={(v) => update("squat_30s_cnt", v)} />
-//               <InputInt label="反復横跳び" note="20秒間（回）" placeholder="例：37" value={form.side_step_20s_cnt} onChange={(v) => update("side_step_20s_cnt", v)} />
-//               <InputFloat label="ボール投げ" note="利き手・助走なし（m）" placeholder="例：13.0" value={form.ball_throw_m} onChange={(v) => update("ball_throw_m", v)} />
+//               <InputFloat
+//                 label="握力"
+//                 note="左右どちらか高い方1回（kg）"
+//                 placeholder="例：22.0"
+//                 value={form.grip_best_kg}
+//                 onChange={(v) => update("grip_best_kg", v)}
+//               />
+//               <InputFloat
+//                 label="立ち幅跳び"
+//                 note="両足同時踏切（cm）"
+//                 placeholder="例：155"
+//                 value={form.standing_jump_cm}
+//                 onChange={(v) => update("standing_jump_cm", v)}
+//               />
+//               <InputFloat
+//                 label="15m走"
+//                 note="立ちスタート（秒）"
+//                 placeholder="例：3.10"
+//                 value={form.dash_15m_sec}
+//                 onChange={(v) => update("dash_15m_sec", v)}
+//               />
+//               <InputFloat
+//                 label="連続立ち幅跳び"
+//                 note="連続2回の合計距離（cm）"
+//                 placeholder="例：440"
+//                 value={form.continuous_jump_cm}
+//                 onChange={(v) => update("continuous_jump_cm", v)}
+//               />
+//               <InputInt
+//                 label="30秒スクワット"
+//                 note="30秒間の回数（回）"
+//                 placeholder="例：27"
+//                 value={form.squat_30s_cnt}
+//                 onChange={(v) => update("squat_30s_cnt", v)}
+//               />
+//               <InputInt
+//                 label="反復横跳び"
+//                 note="20秒間（回）"
+//                 placeholder="例：37"
+//                 value={form.side_step_20s_cnt}
+//                 onChange={(v) => update("side_step_20s_cnt", v)}
+//               />
+//               <InputFloat
+//                 label="ボール投げ"
+//                 note="利き手・助走なし（m）"
+//                 placeholder="例：13.0"
+//                 value={form.ball_throw_m}
+//                 onChange={(v) => update("ball_throw_m", v)}
+//               />
 //             </div>
 //           </section>
 
@@ -511,7 +479,7 @@
 //                 saving && "opacity-60"
 //               )}
 //             >
-//               診断を開始する
+//               {saving ? "診断中..." : "診断を開始する"}
 //             </button>
 //           </section>
 //         </div>
@@ -607,20 +575,26 @@ type Patient = {
 };
 
 type FormState = {
-  height_cm: string; // float (optional)
-  weight_kg: string; // float (optional)
+  measured_at: string;      // ✅ 追加: 測定日（YYYY-MM-DD）
+  event_name: string;       // ✅ 追加: 測定イベント名（任意）
+  
+  height_cm: string;
+  weight_kg: string;
 
-  grip_best_kg: string; // float（左右どちらか高い方）
-  standing_jump_cm: string; // float
-  dash_15m_sec: string; // float
-  continuous_jump_cm: string; // float
+  grip_best_kg: string;
+  standing_jump_cm: string;
+  dash_15m_sec: string;
+  continuous_jump_cm: string;
 
-  squat_30s_cnt: string; // int
-  side_step_20s_cnt: string; // int
-  ball_throw_m: string; // float
+  squat_30s_cnt: string;
+  side_step_20s_cnt: string;
+  ball_throw_m: string;
 };
 
 const initialState: FormState = {
+  measured_at: new Date().toISOString().slice(0, 10), // ✅ 今日の日付をデフォルト
+  event_name: "",                                      // ✅ 空文字
+  
   height_cm: "",
   weight_kg: "",
   grip_best_kg: "",
@@ -657,7 +631,6 @@ function calcAgeYMD(birthDateStr: string) {
 }
 
 function sanitizeFloatInput(raw: string) {
-  // 半角数字 + 小数点のみ
   return raw.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
 }
 function sanitizeIntInput(raw: string) {
@@ -730,7 +703,7 @@ export default function MeasurePage() {
             router.push("/login");
             return;
           }
-          throw new Error(txt || `患者情報の取得に失敗しました (HTTP ${res.status})`);
+          throw new Error(txt || `受検者情報の取得に失敗しました (HTTP ${res.status})`);
         }
 
         const p = JSON.parse(txt) as Patient;
@@ -752,6 +725,8 @@ export default function MeasurePage() {
 
   const validate = () => {
     const labels: Record<keyof FormState, string> = {
+      measured_at: "測定日",        // ✅ 追加
+      event_name: "測定イベント",    // ✅ 追加
       height_cm: "身長（cm）",
       weight_kg: "体重（kg）",
       grip_best_kg: "握力（kg）",
@@ -762,6 +737,12 @@ export default function MeasurePage() {
       side_step_20s_cnt: "反復横跳び（回）",
       ball_throw_m: "ボール投げ（m）",
     };
+
+    // ✅ 測定日は必須
+    if (!form.measured_at.trim()) {
+      setError("測定日を入力してください");
+      return false;
+    }
 
     const required: (keyof FormState)[] = [
       "grip_best_kg",
@@ -779,7 +760,6 @@ export default function MeasurePage() {
       return false;
     }
 
-    // 数値チェック（float）
     const floatKeys: (keyof FormState)[] = [
       "height_cm",
       "weight_kg",
@@ -791,7 +771,7 @@ export default function MeasurePage() {
     ];
     for (const k of floatKeys) {
       const s = form[k].trim();
-      if (!s) continue; // optional
+      if (!s) continue;
       const v = toFloat(s);
       if (!Number.isFinite(v)) {
         setError(`${labels[k]} は数値で入力してください`);
@@ -803,7 +783,6 @@ export default function MeasurePage() {
       }
     }
 
-    // 数値チェック（int）
     const intKeys: (keyof FormState)[] = ["squat_30s_cnt", "side_step_20s_cnt"];
     for (const k of intKeys) {
       const v = toInt(form[k].trim());
@@ -823,7 +802,7 @@ export default function MeasurePage() {
     }
 
     if (!patient) {
-      setError("患者情報を取得できていません（少し待ってから再実行してください）");
+      setError("受検者情報を取得できていません（少し���ってから再実行してください）");
       return false;
     }
 
@@ -850,7 +829,6 @@ export default function MeasurePage() {
     setError(null);
 
     try {
-      // 必須値（validate済み）
       const gripBest = toFloat(form.grip_best_kg.trim());
       const standingJump = toFloat(form.standing_jump_cm.trim());
       const dash15 = toFloat(form.dash_15m_sec.trim());
@@ -859,16 +837,18 @@ export default function MeasurePage() {
       const sideStep20 = toInt(form.side_step_20s_cnt.trim());
       const ballThrow = toFloat(form.ball_throw_m.trim());
 
-      // ✅ clinic_id を送らない（JWT由来に統一）
       const payload: Record<string, any> = {
         patient_id: Number(patientId),
+        
+        // ✅ 測定日・イベント追加
+        measured_at: form.measured_at.trim() || new Date().toISOString().slice(0, 10),
+        ...(form.event_name.trim() ? { event_name: form.event_name.trim() } : {}),
 
         ...(form.height_cm.trim() ? { height_cm: toFloat(form.height_cm.trim()) } : {}),
         ...(form.weight_kg.trim() ? { weight_kg: toFloat(form.weight_kg.trim()) } : {}),
 
-        // API互換
         grip_right: gripBest,
-        grip_left: gripBest, // UIは「強い方1回」なので同値でOK
+        grip_left: gripBest,
         standing_jump: standingJump,
         dash_15m_sec: dash15,
         continuous_standing_jump: continuousJump,
@@ -905,12 +885,12 @@ export default function MeasurePage() {
 
       const data = txt ? JSON.parse(txt) : null;
 
-      // resultページで確実に表示できるように補強
       const enriched = {
         ...(data ?? {}),
         meta: {
           ...(data?.meta ?? {}),
-          measured_at: data?.meta?.measured_at ?? new Date().toISOString().slice(0, 10),
+          measured_at: payload.measured_at,           // ✅ フォームの値を優先
+          event_name: payload.event_name ?? null,     // ✅ イベント名も保存
         },
         user: {
           ...(data?.user ?? {}),
@@ -938,7 +918,7 @@ export default function MeasurePage() {
             className="rounded-full px-3 py-2 text-sm hover:bg-white/10"
             onClick={() => router.push("/patients")}
           >
-            ← 患者一覧に戻る
+            ← 受検者一覧に戻る
           </button>
 
           <div className="text-right">
@@ -950,9 +930,9 @@ export default function MeasurePage() {
           </div>
         </div>
 
-        {/* 患者カード */}
+        {/* 受検者カード */}
         {loadingPatient ? (
-          <div className="mt-3 text-sm text-white/70">患者情報を読み込み中…</div>
+          <div className="mt-3 text-sm text-white/70">受検者情報を読み込み中…</div>
         ) : patient ? (
           <div className="mt-3 rounded-2xl bg-white/10 px-4 py-3 text-white/90 ring-1 ring-white/15">
             <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
@@ -968,7 +948,7 @@ export default function MeasurePage() {
             </div>
           </div>
         ) : (
-          <div className="mt-3 text-sm text-white/70">患者情報を取得できませんでした</div>
+          <div className="mt-3 text-sm text-white/70">受検者情報を取得できませんでした</div>
         )}
 
         <div className="mt-4 rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
@@ -981,6 +961,28 @@ export default function MeasurePage() {
                 {error}
               </div>
             ) : null}
+
+            {/* ✅ 測定日・イベント名（新規追加） */}
+            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field label="測定日" note="必須">
+                <input
+                  type="date"
+                  className="mt-1 h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-[#173b7a] focus:outline-none"
+                  value={form.measured_at}
+                  onChange={(e) => update("measured_at", e.target.value)}
+                />
+              </Field>
+
+              <Field label="測定イベント" note="任意">
+                <input
+                  type="text"
+                  className="mt-1 h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-[#173b7a] focus:outline-none"
+                  placeholder="例：春季測定会"
+                  value={form.event_name}
+                  onChange={(e) => update("event_name", e.target.value)}
+                />
+              </Field>
+            </div>
 
             {/* 身長・体重（任意入力） */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
