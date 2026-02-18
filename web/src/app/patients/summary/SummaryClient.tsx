@@ -34,6 +34,13 @@ type RecordSummary = {
     unit: string;
     t: number;
   }>;
+  user?: {
+    name?: string | null;
+    display_name?: string | null;
+    age?: number | null;
+    birthdate?: string | null;
+    sex?: string | null;
+  };
 };
 
 function fmtDate(s: string) {
@@ -50,6 +57,25 @@ function fmtDateFull(s: string) {
   } catch {
     return s;
   }
+}
+
+function fmtDateJapanese(s?: string | null) {
+  if (!s) return "—";
+  try {
+    const d = new Date(s);
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    return `${y}年${m}月${day}日`;
+  } catch {
+    return s;
+  }
+}
+
+function formatSex(sex?: string | null) {
+  if (sex === "male") return "男子";
+  if (sex === "female") return "女子";
+  return "";
 }
 
 export default function SummaryClient() {
@@ -114,13 +140,33 @@ export default function SummaryClient() {
               summary: item.summary,
               abilities: detail.result?.abilities || [],
               tests: detail.result?.tests || [],
+              user: detail.result?.user || {},
             };
           })
         );
 
         // 古い順にソート
         const sorted = details.filter(Boolean).reverse() as RecordSummary[];
-        setRecords(sorted);
+
+        // ✅ 同日に複数回測定した場合、最新のみを抽出
+        const uniqueByDate = sorted.reduce((acc: RecordSummary[], record) => {
+          const date = record.measured_at.slice(0, 10); // YYYY-MM-DD
+          const existingIndex = acc.findIndex((r) => r.measured_at.slice(0, 10) === date);
+          
+          if (existingIndex === -1) {
+            // 同じ日付がまだない場合は追加
+            acc.push(record);
+          } else {
+            // 同じ日付がある場合、IDが大きい方（最新）を採用
+            if (record.id > acc[existingIndex].id) {
+              acc[existingIndex] = record;
+            }
+          }
+          
+          return acc;
+        }, []);
+
+        setRecords(uniqueByDate);
       } catch (e: any) {
         setErr(String(e?.message ?? e));
       } finally {
@@ -128,6 +174,29 @@ export default function SummaryClient() {
       }
     })();
   }, [patientId, router, apiBase]);
+
+  // 受検者情報（最新のレコードから取得）
+  const userInfo = useMemo(() => {
+    if (records.length === 0) return null;
+    const latestRecord = records[records.length - 1]; // 最新
+    return latestRecord.user || null;
+  }, [records]);
+
+  const displayName = useMemo(() => {
+    return userInfo?.display_name || userInfo?.name || "受検者";
+  }, [userInfo]);
+
+  const birthdate = useMemo(() => {
+    return userInfo?.birthdate || null;
+  }, [userInfo]);
+
+  const age = useMemo(() => {
+    return userInfo?.age ?? null;
+  }, [userInfo]);
+
+  const sex = useMemo(() => {
+    return userInfo?.sex || "";
+  }, [userInfo]);
 
   // グラフ1: 運動器年齢の推移
   const motorAgeData = useMemo(() => {
@@ -144,7 +213,6 @@ export default function SummaryClient() {
   const abilitiesChartData = useMemo(() => {
     if (records.length === 0) return [];
 
-    // 6能力のキー
     const abilityKeys = ["strength", "power", "speed", "agility", "throw", "repeat"];
 
     return records.map((r) => {
@@ -168,7 +236,6 @@ export default function SummaryClient() {
   const testsChartData = useMemo(() => {
     if (records.length === 0) return {};
 
-    // 測定項目のキー
     const testKeys = [
       "grip",
       "standing_jump",
@@ -201,7 +268,6 @@ export default function SummaryClient() {
     return result;
   }, [records]);
 
-  // 6能力のラベルマップ
   const abilityLabels: Record<string, string> = {
     strength: "筋力",
     power: "瞬発力",
@@ -211,7 +277,6 @@ export default function SummaryClient() {
     repeat: "反復パワー",
   };
 
-  // 6能力の色
   const abilityColors: Record<string, string> = {
     strength: "#ef4444",
     power: "#f59e0b",
@@ -224,22 +289,74 @@ export default function SummaryClient() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0b1630] via-[#0b2045] to-[#071127] px-4 py-10 text-slate-900">
       <div className="mx-auto w-full max-w-6xl">
-        {/* ヘッダー */}
-        <div className="mb-6 flex items-center justify-between text-white/80">
+        {/* 上部ナビ */}
+        <div className="mb-6 flex items-center justify-between text-white/80 print:hidden">
           <button
             className="rounded-full px-3 py-2 text-sm hover:bg-white/10"
             onClick={() => router.push(`/patients/records?patient_id=${patientId}`)}
           >
             ← 記録一覧へ
           </button>
+
+          <button
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow hover:bg-white/90"
+            onClick={() => window.print()}
+          >
+            🖨️ PDF出力
+          </button>
         </div>
 
         {/* メインコンテンツ */}
         <div className="rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          {/* ヘッダー */}
           <div className="border-b-4 border-[#173b7a] px-8 py-6">
-            <h1 className="text-2xl font-bold text-[#173b7a]">測定データサマリ</h1>
-            <div className="mt-1 text-sm text-slate-500">patient_id: {patientId}</div>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-[#173b7a]">測定データサマリ</h1>
+                <div className="mt-1 text-xs text-slate-500">Athletic Performance Summary</div>
+              </div>
+              <div className="text-right">
+                <div className="inline-flex items-center rounded-md bg-[#2a61c9] px-3 py-1 text-xs font-bold text-white">
+                  推移グラフ
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* 受検者情報カード */}
+          {userInfo && (
+            <section className="px-8 py-6 border-b bg-slate-50">
+              <div className="rounded-xl border border-slate-200 bg-[#f2f7ff] px-6 py-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-xs text-slate-600">受検者</div>
+                    <div className="mt-1 text-2xl font-bold text-[#173b7a]">{displayName}</div>
+                  </div>
+
+                  <div className="text-right text-xs text-slate-600 space-y-1">
+                    {birthdate && (
+                      <div>
+                        <span className="font-semibold">誕生日：</span>
+                        {fmtDateJapanese(birthdate)}
+                      </div>
+                    )}
+                    {age != null && (
+                      <div>
+                        <span className="font-semibold">年齢：</span>
+                        {age}歳
+                      </div>
+                    )}
+                    {sex && (
+                      <div>
+                        <span className="font-semibold">性別：</span>
+                        {formatSex(sex)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
 
           <div className="px-8 py-6 space-y-8">
             {loading ? (
@@ -383,6 +500,11 @@ export default function SummaryClient() {
                 })}
               </>
             )}
+          </div>
+
+          {/* フッター */}
+          <div className="border-t px-8 py-6 text-xs text-slate-500">
+            ※ 本レポートは測定値に基づく推移データです。継続的な測定で成長を確認しましょう。
           </div>
         </div>
       </div>
