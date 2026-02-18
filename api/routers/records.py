@@ -70,7 +70,6 @@
 #         "payload": r.payload or {},
 #         "result": r.result or {},
 #     }
-
 from datetime import date
 
 from fastapi import APIRouter, Depends, Query, HTTPException
@@ -136,20 +135,25 @@ def get_record(
     if not r:
         raise HTTPException(status_code=404, detail="record not found")
 
-    # ✅ payload から event_name を取得
-    payload = r.payload or {}
-    result = r.result or {}
+    # ✅ payload と result を取得（deepcopy で安全にコピー）
+    import copy
+    payload = copy.deepcopy(r.payload) if isinstance(r.payload, dict) else {}
+    result = copy.deepcopy(r.result) if isinstance(r.result, dict) else {}
     
-    # ✅ result.meta に event_name を追加
+    # ✅ result.meta が存在しない場合は作成
     if "meta" not in result:
         result["meta"] = {}
     
-    if "event_name" in payload:
+    # ✅ measured_at を result.meta に追加
+    result["meta"]["measured_at"] = _fmt_date(r.measured_at)
+    
+    # ✅ payload に event_name があれば result.meta に追加
+    if "event_name" in payload and payload["event_name"]:
         result["meta"]["event_name"] = payload["event_name"]
 
     return {
         "id": r.id,
         "measured_at": _fmt_date(r.measured_at),
         "payload": payload,
-        "result": result,  # ✅ event_name を含む result
+        "result": result,  # ✅ event_name を含む
     }
