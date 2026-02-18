@@ -5,8 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -39,7 +37,19 @@ type RecordSummary = {
 };
 
 function fmtDate(s: string) {
-  return s.slice(0, 10);
+  return s.slice(5, 10); // MM-DD 形式
+}
+
+function fmtDateFull(s: string) {
+  try {
+    const d = new Date(s);
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    return `${y}/${m}/${day}`;
+  } catch {
+    return s;
+  }
 }
 
 export default function SummaryClient() {
@@ -73,7 +83,6 @@ export default function SummaryClient() {
         setLoading(true);
         setErr(null);
 
-        // 測定履歴を取得
         const res = await fetch(`${apiBase}/records?patient_id=${encodeURIComponent(patientId)}`, {
           headers: {
             "Content-Type": "application/json",
@@ -109,7 +118,9 @@ export default function SummaryClient() {
           })
         );
 
-        setRecords(details.filter(Boolean) as RecordSummary[]);
+        // 古い順にソート
+        const sorted = details.filter(Boolean).reverse() as RecordSummary[];
+        setRecords(sorted);
       } catch (e: any) {
         setErr(String(e?.message ?? e));
       } finally {
@@ -124,36 +135,91 @@ export default function SummaryClient() {
       .filter((r) => r.summary?.motor_age?.value != null)
       .map((r) => ({
         date: fmtDate(r.measured_at),
+        fullDate: fmtDateFull(r.measured_at),
         age: r.summary.motor_age!.value,
-      }))
-      .reverse();
+      }));
   }, [records]);
 
-  // グラフ2: 6能力値の推移（最新のみ）
-  const abilitiesData = useMemo(() => {
+  // グラフ2: 6能力値の推移（折れ線6本）
+  const abilitiesChartData = useMemo(() => {
     if (records.length === 0) return [];
-    const latest = records[0];
-    return (latest.abilities || []).map((a) => ({
-      name: a.label,
-      value: a.t,
-    }));
+
+    // 6能力のキー
+    const abilityKeys = ["strength", "power", "speed", "agility", "throw", "repeat"];
+
+    return records.map((r) => {
+      const dataPoint: any = {
+        date: fmtDate(r.measured_at),
+        fullDate: fmtDateFull(r.measured_at),
+      };
+
+      abilityKeys.forEach((key) => {
+        const ability = r.abilities?.find((a) => a.key === key);
+        if (ability) {
+          dataPoint[key] = ability.t;
+        }
+      });
+
+      return dataPoint;
+    });
   }, [records]);
 
-  // グラフ3: 個別測定項目の推移（握力のみ例示）
-  const gripData = useMemo(() => {
-    return records
-      .map((r) => {
-        const grip = r.tests?.find((t) => t.key === "grip");
-        return grip
-          ? {
-              date: fmtDate(r.measured_at),
-              value: grip.value,
-            }
-          : null;
-      })
-      .filter(Boolean)
-      .reverse();
+  // グラフ3: 個別測定項目の推移（全7項目）
+  const testsChartData = useMemo(() => {
+    if (records.length === 0) return {};
+
+    // 測定項目のキー
+    const testKeys = [
+      "grip",
+      "standing_jump",
+      "dash_15m_sec",
+      "continuous_standing_jump",
+      "squat_30s",
+      "side_step",
+      "ball_throw",
+    ];
+
+    const result: Record<string, any[]> = {};
+
+    testKeys.forEach((key) => {
+      result[key] = records
+        .map((r) => {
+          const test = r.tests?.find((t) => t.key === key);
+          return test
+            ? {
+                date: fmtDate(r.measured_at),
+                fullDate: fmtDateFull(r.measured_at),
+                value: test.value,
+                label: test.label,
+                unit: test.unit,
+              }
+            : null;
+        })
+        .filter(Boolean);
+    });
+
+    return result;
   }, [records]);
+
+  // 6能力のラベルマップ
+  const abilityLabels: Record<string, string> = {
+    strength: "筋力",
+    power: "瞬発力",
+    speed: "スピード",
+    agility: "敏捷性",
+    throw: "投力",
+    repeat: "反復パワー",
+  };
+
+  // 6能力の色
+  const abilityColors: Record<string, string> = {
+    strength: "#ef4444",
+    power: "#f59e0b",
+    speed: "#10b981",
+    agility: "#3b82f6",
+    throw: "#8b5cf6",
+    repeat: "#ec4899",
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0b1630] via-[#0b2045] to-[#071127] px-4 py-10 text-slate-900">
@@ -194,47 +260,127 @@ export default function SummaryClient() {
                       <LineChart data={motorAgeData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
+                        <YAxis domain={[0, 15]} />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-lg">
+                                  <p className="text-xs text-slate-600">{payload[0].payload.fullDate}</p>
+                                  <p className="text-sm font-bold text-slate-900">
+                                    {payload[0].value}歳
+                                  </p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
                         <Legend />
-                        <Line type="monotone" dataKey="age" stroke="#173b7a" strokeWidth={2} name="運動器年齢" />
+                        <Line
+                          type="monotone"
+                          dataKey="age"
+                          stroke="#173b7a"
+                          strokeWidth={2}
+                          name="運動器年齢"
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 )}
 
-                {/* グラフ2: 6能力値（最新） */}
-                {abilitiesData.length > 0 && (
+                {/* グラフ2: 6能力値の推移（折れ線6本） */}
+                {abilitiesChartData.length > 0 && (
                   <div className="bg-slate-50 rounded-xl p-6">
-                    <h2 className="text-lg font-bold text-slate-800 mb-4">6能力値（最新測定）</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={abilitiesData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis domain={[0, 80]} />
-                        <Tooltip />
-                        <Bar dataKey="value" fill="#2a61c9" name="T得点" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-
-                {/* グラフ3: 個別測定項目（握力） */}
-                {gripData.length > 0 && (
-                  <div className="bg-slate-50 rounded-xl p-6">
-                    <h2 className="text-lg font-bold text-slate-800 mb-4">握力の推移</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={gripData}>
+                    <h2 className="text-lg font-bold text-slate-800 mb-4">6能力値の推移（偏差値）</h2>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <LineChart data={abilitiesChartData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
+                        <YAxis domain={[0, 80]} />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-lg">
+                                  <p className="text-xs text-slate-600 mb-1">{payload[0].payload.fullDate}</p>
+                                  {payload.map((entry: any) => (
+                                    <p key={entry.dataKey} className="text-xs font-semibold" style={{ color: entry.color }}>
+                                      {abilityLabels[entry.dataKey]}: {entry.value?.toFixed(1)}
+                                    </p>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
                         <Legend />
-                        <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} name="握力 (kg)" />
+                        {Object.keys(abilityLabels).map((key) => (
+                          <Line
+                            key={key}
+                            type="monotone"
+                            dataKey={key}
+                            stroke={abilityColors[key]}
+                            strokeWidth={2}
+                            name={abilityLabels[key]}
+                            dot={{ r: 3 }}
+                            activeDot={{ r: 5 }}
+                          />
+                        ))}
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 )}
+
+                {/* グラフ3: 個別測定項目の推移（全7項目） */}
+                {Object.entries(testsChartData).map(([key, data]) => {
+                  if (!data || data.length === 0) return null;
+                  const label = data[0]?.label || key;
+                  const unit = data[0]?.unit || "";
+
+                  return (
+                    <div key={key} className="bg-slate-50 rounded-xl p-6">
+                      <h2 className="text-lg font-bold text-slate-800 mb-4">
+                        {label}の推移 {unit && `(${unit})`}
+                      </h2>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={data}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-lg">
+                                    <p className="text-xs text-slate-600">{payload[0].payload.fullDate}</p>
+                                    <p className="text-sm font-bold text-slate-900">
+                                      {payload[0].value} {unit}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Legend />
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke="#10b981"
+                            strokeWidth={2}
+                            name={`${label} (${unit})`}
+                            dot={{ r: 4 }}
+                            activeDot={{ r: 6 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  );
+                })}
               </>
             )}
           </div>
