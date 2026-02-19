@@ -604,6 +604,7 @@ type DiagnoseResult = {
     ability_label?: string | null;
     desc?: string | null;
     frequency?: string | null;
+    image?: string | null;
   }> | null;
 
   guardian_message?: string | null;
@@ -953,11 +954,28 @@ export default function ResultClient() {
               {trainings.length ? (
                 trainings.slice(0, 4).map((t, idx) => (
                   <div key={`${t.title}-${idx}`} className="rounded-xl border border-slate-200 px-5 py-4">
-                    <div className="text-xs font-bold text-slate-500">
-                      重点：{t.ability_label ?? ""} {t.frequency ? ` / ${t.frequency}` : ""}
+                    <div className="flex items-start justify-between gap-4">
+                      {/* 左側：テキスト */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-bold text-slate-500">
+                          重点：{t.ability_label ?? ""} {t.frequency ? ` / ${t.frequency}` : ""}
+                        </div>
+                        <div className="mt-1 text-lg font-extrabold text-slate-900">{t.title}</div>
+                        {t.desc ? <div className="mt-2 text-sm text-slate-700">{t.desc}</div> : null}
+                      </div>
+
+                      {/* 右側：画像 */}
+                      {t.image && (
+                        <div className="flex-shrink-0">
+                          <img 
+                            src={t.image} 
+                            alt={t.title} 
+                            className="w-28 h-28 object-contain rounded-lg border border-slate-200 bg-slate-50"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-1 text-lg font-extrabold text-slate-900">{t.title}</div>
-                    {t.desc ? <div className="mt-2 text-sm text-slate-700">{t.desc}</div> : null}
                   </div>
                 ))
               ) : (
