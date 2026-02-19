@@ -39,26 +39,28 @@ TEST_META = {
     "ball_throw": {"label": "ボール投げ", "unit": "m"},
 }
 
-ABILITIES = ["strength", "power", "speed", "agility", "throw", "repeat"]
+# ✅ 7能力に変更
+ABILITIES = ["strength", "power", "speed", "balance", "endurance", "agility", "throw"]
 
+# ✅ 7能力のラベル
 ABILITY_META = {
-    "strength": {"label": "筋力"},
+    "strength": {"label": "筋力（握力）"},
     "power": {"label": "瞬発力"},
-    "speed": {"label": "スピード"},
+    "speed": {"label": "移動能力"},
+    "balance": {"label": "バランス"},
+    "endurance": {"label": "筋持久力"},
     "agility": {"label": "敏捷性"},
     "throw": {"label": "投力"},
-    "repeat": {"label": "反復パワー"},
 }
 
-# 「テスト → 能力」への寄与（超ざっくりの復元）
-# dash は “低いほど良い” なのでスコア算出で反転します
+# ✅ 「テスト → 能力」への寄与（7能力版・balance追加）
 TEST_TO_ABILITY_W = {
     "grip": {"strength": 1.0},
-    "standing_jump": {"power": 0.9, "strength": 0.3},
+    "standing_jump": {"power": 0.9, "strength": 0.3, "balance": 0.2},
     "dash_15m_sec": {"speed": 1.0, "agility": 0.2},
-    "continuous_standing_jump": {"repeat": 0.9, "power": 0.3},
-    "squat_30s": {"strength": 0.5, "repeat": 0.7},
-    "side_step": {"agility": 1.0, "speed": 0.2},
+    "continuous_standing_jump": {"endurance": 0.9, "power": 0.3, "balance": 0.3},
+    "squat_30s": {"strength": 0.5, "endurance": 0.7},
+    "side_step": {"agility": 1.0, "speed": 0.2, "balance": 0.4},
     "ball_throw": {"throw": 1.0, "power": 0.3, "strength": 0.2},
 }
 
@@ -67,98 +69,108 @@ TEST_TO_ABILITY_W = {
 # Masters (DB不要)
 # =========================
 SPORT_MASTER: List[dict] = [
-    {"sport": "サッカー", "emoji": "⚽️", "w": {"speed": 1.2, "agility": 1.2, "repeat": 1.0, "power": 0.6, "strength": 0.4, "throw": 0.1}},
-    {"sport": "野球", "emoji": "⚾️", "w": {"throw": 1.3, "power": 1.0, "speed": 0.7, "agility": 0.7, "strength": 0.5, "repeat": 0.3}},
-    {"sport": "バスケットボール", "emoji": "🏀", "w": {"power": 1.2, "agility": 1.0, "speed": 0.9, "repeat": 0.8, "strength": 0.6, "throw": 0.2}},
-    {"sport": "バレーボール", "emoji": "🏐", "w": {"power": 1.3, "agility": 0.9, "speed": 0.7, "repeat": 0.7, "strength": 0.5, "throw": 0.2}},
-    {"sport": "陸上（短距離）", "emoji": "🏃‍♂️", "w": {"speed": 1.5, "power": 1.1, "agility": 0.5, "repeat": 0.6, "strength": 0.3, "throw": 0.0}},
-    {"sport": "陸上（中距離）", "emoji": "🏃", "w": {"repeat": 1.5, "speed": 1.0, "agility": 0.4, "power": 0.5, "strength": 0.3, "throw": 0.0}},
-    {"sport": "体操", "emoji": "🤸", "w": {"agility": 1.4, "power": 1.0, "strength": 0.8, "repeat": 0.6, "speed": 0.4, "throw": 0.0}},
-    {"sport": "水泳", "emoji": "🏊", "w": {"repeat": 1.3, "power": 0.8, "strength": 0.7, "speed": 0.7, "agility": 0.3, "throw": 0.0}},
-    {"sport": "テニス", "emoji": "🎾", "w": {"agility": 1.2, "speed": 1.0, "power": 0.8, "repeat": 0.7, "strength": 0.4, "throw": 0.1}},
-    {"sport": "卓球", "emoji": "🏓", "w": {"agility": 1.4, "speed": 1.0, "repeat": 0.8, "power": 0.4, "strength": 0.2, "throw": 0.0}},
-    {"sport": "バドミントン", "emoji": "🏸", "w": {"agility": 1.3, "speed": 1.1, "repeat": 0.9, "power": 0.6, "strength": 0.3, "throw": 0.0}},
-    {"sport": "柔道", "emoji": "🥋", "w": {"strength": 1.4, "power": 1.1, "agility": 0.6, "repeat": 0.8, "speed": 0.4, "throw": 0.1}},
-    {"sport": "空手", "emoji": "🥋", "w": {"speed": 1.1, "agility": 1.0, "power": 1.0, "repeat": 0.8, "strength": 0.5, "throw": 0.0}},
-    {"sport": "ラグビー", "emoji": "🏉", "w": {"strength": 1.4, "power": 1.2, "repeat": 0.8, "speed": 0.6, "agility": 0.6, "throw": 0.2}},
-    {"sport": "ハンドボール", "emoji": "🤾", "w": {"throw": 1.3, "power": 1.0, "agility": 0.9, "speed": 0.7, "repeat": 0.7, "strength": 0.4}},
-    {"sport": "ダンス", "emoji": "💃", "w": {"agility": 1.4, "repeat": 1.0, "speed": 0.6, "power": 0.6, "strength": 0.3, "throw": 0.0}},
-    {"sport": "ボルダリング", "emoji": "🧗", "w": {"strength": 1.4, "agility": 0.8, "power": 0.8, "repeat": 0.7, "speed": 0.2, "throw": 0.0}},
+    {"sport": "サッカー", "emoji": "⚽️", "w": {"speed": 1.2, "agility": 1.2, "endurance": 1.0, "power": 0.6, "strength": 0.4, "throw": 0.1, "balance": 0.5}},
+    {"sport": "野球", "emoji": "⚾️", "w": {"throw": 1.3, "power": 1.0, "speed": 0.7, "agility": 0.7, "strength": 0.5, "endurance": 0.3, "balance": 0.5}},
+    {"sport": "バスケットボール", "emoji": "🏀", "w": {"power": 1.2, "agility": 1.0, "speed": 0.9, "endurance": 0.8, "strength": 0.6, "throw": 0.2, "balance": 0.6}},
+    {"sport": "バレーボール", "emoji": "🏐", "w": {"power": 1.3, "agility": 0.9, "speed": 0.7, "endurance": 0.7, "strength": 0.5, "throw": 0.2, "balance": 0.5}},
+    {"sport": "陸上（短距離）", "emoji": "🏃‍♂️", "w": {"speed": 1.5, "power": 1.1, "agility": 0.5, "endurance": 0.6, "strength": 0.3, "throw": 0.0, "balance": 0.4}},
+    {"sport": "陸上（中距離）", "emoji": "🏃", "w": {"endurance": 1.5, "speed": 1.0, "agility": 0.4, "power": 0.5, "strength": 0.3, "throw": 0.0, "balance": 0.5}},
+    {"sport": "体操", "emoji": "🤸", "w": {"balance": 1.4, "agility": 1.2, "power": 1.0, "strength": 0.8, "endurance": 0.6, "speed": 0.4, "throw": 0.0}},
+    {"sport": "水泳", "emoji": "🏊", "w": {"endurance": 1.3, "power": 0.8, "strength": 0.7, "speed": 0.7, "agility": 0.3, "throw": 0.0, "balance": 0.4}},
+    {"sport": "テニス", "emoji": "🎾", "w": {"agility": 1.2, "speed": 1.0, "power": 0.8, "endurance": 0.7, "strength": 0.4, "throw": 0.1, "balance": 0.6}},
+    {"sport": "卓球", "emoji": "🏓", "w": {"agility": 1.4, "speed": 1.0, "endurance": 0.8, "power": 0.4, "strength": 0.2, "throw": 0.0, "balance": 0.5}},
+    {"sport": "バドミントン", "emoji": "🏸", "w": {"agility": 1.3, "speed": 1.1, "endurance": 0.9, "power": 0.6, "strength": 0.3, "throw": 0.0, "balance": 0.5}},
+    {"sport": "柔道", "emoji": "🥋", "w": {"strength": 1.4, "power": 1.1, "balance": 0.9, "agility": 0.6, "endurance": 0.8, "speed": 0.4, "throw": 0.1}},
+    {"sport": "空手", "emoji": "🥋", "w": {"speed": 1.1, "agility": 1.0, "power": 1.0, "endurance": 0.8, "strength": 0.5, "throw": 0.0, "balance": 0.7}},
+    {"sport": "ラグビー", "emoji": "🏉", "w": {"strength": 1.4, "power": 1.2, "endurance": 0.8, "speed": 0.6, "agility": 0.6, "throw": 0.2, "balance": 0.5}},
+    {"sport": "ハンドボール", "emoji": "🤾", "w": {"throw": 1.3, "power": 1.0, "agility": 0.9, "speed": 0.7, "endurance": 0.7, "strength": 0.4, "balance": 0.5}},
+    {"sport": "ダンス", "emoji": "💃", "w": {"agility": 1.4, "balance": 1.2, "endurance": 1.0, "speed": 0.6, "power": 0.6, "strength": 0.3, "throw": 0.0}},
+    {"sport": "ボルダリング", "emoji": "🧗", "w": {"strength": 1.4, "balance": 1.1, "agility": 0.8, "power": 0.8, "endurance": 0.7, "speed": 0.2, "throw": 0.0}},
 ]
 
-# 60種目（復元：能力タグだけは使う）
+# ✅ 70種目（7能力×10種目）
 TRAINING_MASTER: List[dict] = [
-    # speed
-    {"id": 1, "title": "もも上げ（20m）", "ability": "speed", "desc": "腕振りと姿勢を意識してリズム良く。", "freq": "週2回"},
-    {"id": 2, "title": "スタートダッシュ（10m×5）", "ability": "speed", "desc": "最初の3歩を強く。休憩は長め。", "freq": "週2回"},
-    {"id": 3, "title": "坂ダッシュ（短い坂）", "ability": "speed", "desc": "前傾を保って地面を押す。", "freq": "週1回"},
-    {"id": 4, "title": "ミニハードル走", "ability": "speed", "desc": "接地を短く、テンポ優先。", "freq": "週2回"},
-    {"id": 5, "title": "ラダードリル（基本）", "ability": "speed", "desc": "足を速く、視線は前。", "freq": "週2回"},
-    {"id": 6, "title": "直線30m流し", "ability": "speed", "desc": "全力ではなくフォームを整える。", "freq": "週2回"},
-    {"id": 7, "title": "リズムジャンプ（小刻み）", "ability": "speed", "desc": "反発をもらって軽く跳ぶ。", "freq": "週2回"},
-    {"id": 8, "title": "スキップ（30m）", "ability": "speed", "desc": "膝とつま先の向きを揃える。", "freq": "週2回"},
-    {"id": 9, "title": "バウンディング（軽め）", "ability": "speed", "desc": "遠くへより“強く押す”。", "freq": "週1回"},
-    {"id": 10, "title": "フォーム走（動画チェック）", "ability": "speed", "desc": "腕振り・接地位置を確認。", "freq": "週1回"},
+    # strength（筋力・握力）ID 1-10
+    {"id": 1, "title": "タオル握りスクイーズ", "ability": "strength", "desc": "指・前腕を使って握る力を鍛え、物をつかむ基礎力を高める。", "freq": "週3回", "image": "/images/trainings/strength_01.JPEG"},
+    {"id": 2, "title": "雑巾しぼり", "ability": "strength", "desc": "左右差なく前腕と手指を使い、日常動作に直結する握力を養う。", "freq": "週3回", "image": "/images/trainings/strength_02.JPEG"},
+    {"id": 3, "title": "ぶら下がり", "ability": "strength", "desc": "体重を支えることで握力＋肩・体幹の支持力も同時に強化。", "freq": "週2回", "image": "/images/trainings/strength_03.JPEG"},
+    {"id": 4, "title": "クマ歩き", "ability": "strength", "desc": "手で体を支えるため、握力と上半身の連動力が高まる。", "freq": "週2回", "image": "/images/trainings/strength_04.JPEG"},
+    {"id": 5, "title": "カニ歩き", "ability": "strength", "desc": "手と足で体重を分散し、持続的な握力と体幹安定性を養う。", "freq": "週2回", "image": "/images/trainings/strength_05.JPEG"},
+    {"id": 6, "title": "プランク手支持", "ability": "strength", "desc": "手で床を押すことで手指・前腕の支持力を強化。", "freq": "週3回", "image": "/images/trainings/strength_06.JPEG"},
+    {"id": 7, "title": "ペットボトル持ち替え", "ability": "strength", "desc": "握る→離す動作で巧緻性と握力のコントロール力を鍛える。", "freq": "週2回", "image": "/images/trainings/strength_07.JPEG"},
+    {"id": 8, "title": "指立て伏せ（簡易）", "ability": "strength", "desc": "指に体重を分散させ、指先の力と安定性を高める。", "freq": "週2回", "image": "/images/trainings/strength_08.JPEG"},
+    {"id": 9, "title": "ボール潰し", "ability": "strength", "desc": "最大握力を直接刺激し、握る瞬間の力発揮を強化。", "freq": "週2回", "image": "/images/trainings/strength_09.JPEG"},
+    {"id": 10, "title": "ロープ引き（タオル）", "ability": "strength", "desc": "引く動作で握力＋背中・体幹の連動を鍛える。", "freq": "週2回", "image": "/images/trainings/strength_10.JPEG"},
+    # power（瞬発力）ID 11-20
+    {"id": 11, "title": "その場ジャンプ", "ability": "power", "desc": "一瞬で地面を押す力を高め、跳ぶ基礎能力を作る。", "freq": "週2回", "image": "/images/trainings/power_11.JPEG"},
+    {"id": 12, "title": "連続ジャンプ", "ability": "power", "desc": "反発を使った素早い力発揮を覚える。", "freq": "週2回", "image": "/images/trainings/power_12.JPEG"},
+    {"id": 13, "title": "スクワットジャンプ", "ability": "power", "desc": "下半身の筋力を一気に使う力を養う。", "freq": "週2回", "image": "/images/trainings/power_13.JPEG"},
+    {"id": 14, "title": "前後ジャンプ", "ability": "power", "desc": "前後方向への瞬間的な加速力を強化。", "freq": "週2回", "image": "/images/trainings/power_14.JPEG"},
+    {"id": 15, "title": "横ジャンプ", "ability": "power", "desc": "横方向の瞬発力と着地の安定性を高める。", "freq": "週2回", "image": "/images/trainings/power_15.JPEG"},
+    {"id": 16, "title": "反応ジャンプ", "ability": "power", "desc": "合図に反応して跳ぶことで神経系の瞬発性を刺激。", "freq": "週2回", "image": "/images/trainings/power_16.JPEG"},
+    {"id": 17, "title": "バウンディング", "ability": "power", "desc": "走る時の地面反力を効率よく使う能力を育てる。", "freq": "週1回", "image": "/images/trainings/power_17.JPEG"},
+    {"id": 18, "title": "スタートダッシュ3m", "ability": "power", "desc": "最初の一歩の爆発的な力を鍛える。", "freq": "週2回", "image": "/images/trainings/power_18.JPEG"},
+    {"id": 19, "title": "キャッチ→即ジャンプ", "ability": "power", "desc": "動作切り替え能力と瞬発力を同時に強化。", "freq": "週2回", "image": "/images/trainings/power_19.JPEG"},
+    {"id": 20, "title": "片足ジャンプ", "ability": "power", "desc": "片脚で力を出す能力とバランスを向上。", "freq": "週2回", "image": "/images/trainings/power_20.JPEG"},
 
-    # agility
-    {"id": 11, "title": "サイドステップ（20秒×3）", "ability": "agility", "desc": "腰を落として小さく速く。", "freq": "週2回"},
-    {"id": 12, "title": "切り返し（5-5m×6）", "ability": "agility", "desc": "減速→体の向き→加速の順。", "freq": "週2回"},
-    {"id": 13, "title": "コーンジグザグ走", "ability": "agility", "desc": "頭を振らずに体幹で方向転換。", "freq": "週2回"},
-    {"id": 14, "title": "リアクションダッシュ", "ability": "agility", "desc": "合図で左右にスタート。", "freq": "週1回"},
-    {"id": 15, "title": "ラダー（インアウト）", "ability": "agility", "desc": "足音を小さく速く。", "freq": "週2回"},
-    {"id": 16, "title": "片足バランス→タッチ", "ability": "agility", "desc": "片足で前後左右にタッチ。", "freq": "週2回"},
-    {"id": 17, "title": "シャトルラン（短）", "ability": "agility", "desc": "ターンの“最後の一歩”を意識。", "freq": "週1回"},
-    {"id": 18, "title": "ミラーゲーム（対面）", "ability": "agility", "desc": "相手の動きを真似る遊び練。", "freq": "週1回"},
-    {"id": 19, "title": "小ジャンプ横移動", "ability": "agility", "desc": "膝を内側に入れない。", "freq": "週2回"},
-    {"id": 20, "title": "クイックターン（その場）", "ability": "agility", "desc": "軸足を決めて素早く回る。", "freq": "週2回"},
+    # speed（移動能力）ID 21-30
+    {"id": 21, "title": "クマ歩き前進", "ability": "speed", "desc": "全身を連動させて前に進む基礎移動能力を高める。", "freq": "週2回", "image": "/images/trainings/speed_21.JPEG"},
+    {"id": 22, "title": "クマ歩き後退", "ability": "speed", "desc": "後ろへの移動で空間認知と身体操作力を向上。", "freq": "週2回", "image": "/images/trainings/speed_22.JPEG"},
+    {"id": 23, "title": "カニ歩き横移動", "ability": "speed", "desc": "横方向への移動能力と体幹安定性を強化。", "freq": "週2回", "image": "/images/trainings/speed_23.JPEG"},
+    {"id": 24, "title": "サイドステップ", "ability": "speed", "desc": "スポーツで必須の横移動をスムーズにする。", "freq": "週2回", "image": "/images/trainings/speed_24.JPEG"},
+    {"id": 25, "title": "スキップ", "ability": "speed", "desc": "リズムと上下移動を組み合わせた移動能力を養う。", "freq": "週2回", "image": "/images/trainings/speed_25.JPEG"},
+    {"id": 26, "title": "クロスステップ", "ability": "speed", "desc": "足を交差させる動きで複雑な移動に対応できる。", "freq": "週2回", "image": "/images/trainings/speed_26.JPEG"},
+    {"id": 27, "title": "ジグザグ走", "ability": "speed", "desc": "方向転換を含む移動能力を高める。", "freq": "週2回", "image": "/images/trainings/speed_27.JPEG"},
+    {"id": 28, "title": "バック走", "ability": "speed", "desc": "後方移動で視野と身体操作の幅を広げる。", "freq": "週2回", "image": "/images/trainings/speed_28.JPEG"},
+    {"id": 29, "title": "ハイハイ移動", "ability": "speed", "desc": "左右の協調性と体幹主導の移動を身につける。", "freq": "週2回", "image": "/images/trainings/speed_29.JPEG"},
+    {"id": 30, "title": "8の字走", "ability": "speed", "desc": "連続した方向変換に対応する能力を鍛える。", "freq": "週2回", "image": "/images/trainings/speed_30.JPEG"},
 
-    # power
-    {"id": 21, "title": "スクワットジャンプ", "ability": "power", "desc": "着地は静かに。回数より質。", "freq": "週2回"},
-    {"id": 22, "title": "立ち幅跳び（フォーム）", "ability": "power", "desc": "腕→膝→股関節の順で伸ばす。", "freq": "週2回"},
-    {"id": 23, "title": "ボックスジャンプ（低め）", "ability": "power", "desc": "怖くない高さでOK。", "freq": "週1回"},
-    {"id": 24, "title": "ケンケン（左右）", "ability": "power", "desc": "前へ進むより反発を意識。", "freq": "週2回"},
-    {"id": 25, "title": "バウンスジャンプ（連続）", "ability": "power", "desc": "膝を固めず足首で弾む。", "freq": "週2回"},
-    {"id": 26, "title": "メディシンボール投げ（前）", "ability": "power", "desc": "体幹を使って押し出す。", "freq": "週1回"},
-    {"id": 27, "title": "ジャンプ＆着地練習", "ability": "power", "desc": "着地姿勢（膝・つま先）を整える。", "freq": "週2回"},
-    {"id": 28, "title": "スプリットジャンプ", "ability": "power", "desc": "左右交互、フォーム優先。", "freq": "週1回"},
-    {"id": 29, "title": "連続ジャンプ（10回）", "ability": "power", "desc": "反発を揃える。", "freq": "週2回"},
-    {"id": 30, "title": "段差ジャンプ（低）", "ability": "power", "desc": "足元の安全優先。", "freq": "週1回"},
+    # balance（バランス）ID 31-40
+    {"id": 31, "title": "片足立ち", "ability": "balance", "desc": "重心をコントロールする基本能力を養う。", "freq": "週3回", "image": "/images/trainings/balance_31.JPEG"},
+    {"id": 32, "title": "目閉じ片足立ち", "ability": "balance", "desc": "視覚に頼らないバランス感覚を鍛える。", "freq": "週2回", "image": "/images/trainings/balance_32.JPEG"},
+    {"id": 33, "title": "片足スクワット", "ability": "balance", "desc": "動きながらバランスを保つ力を強化。", "freq": "週2回", "image": "/images/trainings/balance_33.JPEG"},
+    {"id": 34, "title": "つま先立ちキープ", "ability": "balance", "desc": "足首の安定性と姿勢保持力を高める。", "freq": "週3回", "image": "/images/trainings/balance_34.JPEG"},
+    {"id": 35, "title": "かかと立ちキープ", "ability": "balance", "desc": "前後の重心コントロールを向上。", "freq": "週3回", "image": "/images/trainings/balance_35.JPEG"},
+    {"id": 36, "title": "バランスボード", "ability": "balance", "desc": "不安定環境で姿勢調整力を養う。", "freq": "週2回", "image": "/images/trainings/balance_36.JPEG"},
+    {"id": 37, "title": "片足キャッチ", "ability": "balance", "desc": "バランス＋上肢操作を同時に鍛える。", "freq": "週2回", "image": "/images/trainings/balance_37.JPEG"},
+    {"id": 38, "title": "片足ジャンプ着地", "ability": "balance", "desc": "着地時の衝撃吸収と安定性を向上。", "freq": "週2回", "image": "/images/trainings/balance_38.JPEG"},
+    {"id": 39, "title": "T字バランス", "ability": "balance", "desc": "体幹と下肢を一直線で支える能力を養う。", "freq": "週2回", "image": "/images/trainings/balance_39.JPEG"},
+    {"id": 40, "title": "不安定姿勢で投げ", "ability": "balance", "desc": "崩れながらも姿勢を立て直す力を育てる。", "freq": "週1回", "image": "/images/trainings/balance_40.JPEG"},
 
-    # strength
-    {"id": 31, "title": "自重スクワット", "ability": "strength", "desc": "膝とつま先を同じ向き。", "freq": "週3回"},
-    {"id": 32, "title": "ランジ（左右）", "ability": "strength", "desc": "上体を立ててゆっくり。", "freq": "週2回"},
-    {"id": 33, "title": "プッシュアップ（膝つき可）", "ability": "strength", "desc": "体を一直線に。", "freq": "週2回"},
-    {"id": 34, "title": "懸垂ぶら下がり", "ability": "strength", "desc": "握る→肩を下げる。", "freq": "週2回"},
-    {"id": 35, "title": "ヒップリフト", "ability": "strength", "desc": "お尻で持ち上げる。腰反らない。", "freq": "週2回"},
-    {"id": 36, "title": "プランク（20〜40秒）", "ability": "strength", "desc": "お腹に力、腰を落とさない。", "freq": "週3回"},
-    {"id": 37, "title": "カーフレイズ", "ability": "strength", "desc": "ゆっくり上げ下げ。", "freq": "週3回"},
-    {"id": 38, "title": "壁イス（30秒）", "ability": "strength", "desc": "太ももに効かせる。", "freq": "週2回"},
-    {"id": 39, "title": "タオル握り（10秒×5）", "ability": "strength", "desc": "握力の土台作り。", "freq": "週3回"},
-    {"id": 40, "title": "背筋（軽め）", "ability": "strength", "desc": "反動なしでゆっくり。", "freq": "週2回"},
+    # endurance（筋持久力）ID 41-50
+    {"id": 41, "title": "スクワット連続", "ability": "endurance", "desc": "下半身を使い続ける力を鍛える。", "freq": "週2回", "image": "/images/trainings/endurance_41.JPEG"},
+    {"id": 42, "title": "プランク", "ability": "endurance", "desc": "体幹を安定させたまま耐える力を強化。", "freq": "週3回", "image": "/images/trainings/endurance_42.JPEG"},
+    {"id": 43, "title": "壁スクワット", "ability": "endurance", "desc": "静的姿勢で筋肉を使い続ける能力を養う。", "freq": "週2回", "image": "/images/trainings/endurance_43.JPEG"},
+    {"id": 44, "title": "腕立て伏せ", "ability": "endurance", "desc": "上半身の持久力と体幹安定性を向上。", "freq": "週2回", "image": "/images/trainings/endurance_44.JPEG"},
+    {"id": 45, "title": "マウンテンクライマー", "ability": "endurance", "desc": "全身を使った持久的運動能力を高める。", "freq": "週2回", "image": "/images/trainings/endurance_45.JPEG"},
+    {"id": 46, "title": "連続ジャンプ30秒", "ability": "endurance", "desc": "疲れても動きを維持する力を養う。", "freq": "週2回", "image": "/images/trainings/endurance_46.JPEG"},
+    {"id": 47, "title": "その場もも上げ", "ability": "endurance", "desc": "走動作に必要な下肢持久力を強化。", "freq": "週2回", "image": "/images/trainings/endurance_47.JPEG"},
+    {"id": 48, "title": "クマ歩き往復", "ability": "endurance", "desc": "全身の筋持久力をバランスよく鍛える。", "freq": "週2回", "image": "/images/trainings/endurance_48.JPEG"},
+    {"id": 49, "title": "軽めバーピー", "ability": "endurance", "desc": "全身を使い続ける体力を向上。", "freq": "週2回", "image": "/images/trainings/endurance_49.JPEG"},
+    {"id": 50, "title": "なわとび", "ability": "endurance", "desc": "リズムを保ちながら持久的に動く力を育てる。", "freq": "週3回", "image": "/images/trainings/endurance_50.JPEG"},
+    # agility（敏捷性）ID 51-60
+    {"id": 51, "title": "ラダートレーニング", "ability": "agility", "desc": "素早い足さばきとリズム感を養う。", "freq": "週2回", "image": "/images/trainings/agility_51.JPEG"},
+    {"id": 52, "title": "サイドタッチ", "ability": "agility", "desc": "左右への素早い切り替えを強化。", "freq": "週2回", "image": "/images/trainings/agility_52.JPEG"},
+    {"id": 53, "title": "色タッチ反応", "ability": "agility", "desc": "判断→動作の速さを高める。", "freq": "週2回", "image": "/images/trainings/agility_53.JPEG"},
+    {"id": 54, "title": "合図ダッシュ", "ability": "agility", "desc": "スタート反応を速くする。", "freq": "週2回", "image": "/images/trainings/agility_54.JPEG"},
+    {"id": 55, "title": "フェイントステップ", "ability": "agility", "desc": "相手をかわす動作の基礎を作る。", "freq": "週2回", "image": "/images/trainings/agility_55.JPEG"},
+    {"id": 56, "title": "方向転換走", "ability": "agility", "desc": "急な切り返し能力を向上。", "freq": "週2回", "image": "/images/trainings/agility_56.JPEG"},
+    {"id": 57, "title": "反応キャッチ", "ability": "agility", "desc": "目と体の連動スピードを高める。", "freq": "週2回", "image": "/images/trainings/agility_57.JPEG"},
+    {"id": 58, "title": "ミラームーブ", "ability": "agility", "desc": "相手の動きを即座に真似る反応力を養う。", "freq": "週2回", "image": "/images/trainings/agility_58.JPEG"},
+    {"id": 59, "title": "じゃんけんダッシュ", "ability": "agility", "desc": "判断力＋瞬時の行動力を鍛える。", "freq": "週2回", "image": "/images/trainings/agility_59.JPEG"},
+    {"id": 60, "title": "ストップ＆ゴー走", "ability": "agility", "desc": "止まる→動く切り替え能力を強化。", "freq": "週2回", "image": "/images/trainings/agility_60.JPEG"},
 
-    # throw
-    {"id": 41, "title": "壁当て（フォーム）", "ability": "throw", "desc": "肘の位置と体重移動を意識。", "freq": "週2回"},
-    {"id": 42, "title": "タオルスロー", "ability": "throw", "desc": "肩肘を痛めない範囲で。", "freq": "週2回"},
-    {"id": 43, "title": "ステップ投げ（助走1歩）", "ability": "throw", "desc": "前足着地→体幹回旋→腕。", "freq": "週2回"},
-    {"id": 44, "title": "上体ひねり（左右）", "ability": "throw", "desc": "投げの“体幹”作り。", "freq": "週2回"},
-    {"id": 45, "title": "ゴムチューブ引き", "ability": "throw", "desc": "肩甲骨を動かす。", "freq": "週2回"},
-    {"id": 46, "title": "胸の前から押し投げ", "ability": "throw", "desc": "手だけで投げない。", "freq": "週2回"},
-    {"id": 47, "title": "肩まわりストレッチ", "ability": "throw", "desc": "可動域を広げてフォーム改善。", "freq": "週3回"},
-    {"id": 48, "title": "片手キャッチ（軽いボール）", "ability": "throw", "desc": "投げる前に“扱い”を上げる。", "freq": "週2回"},
-    {"id": 49, "title": "的当て（距離調整）", "ability": "throw", "desc": "狙って投げる習慣。", "freq": "週1回"},
-    {"id": 50, "title": "股関節→体幹連動ドリル", "ability": "throw", "desc": "下半身から上へ伝える。", "freq": "週1回"},
-
-    # repeat
-    {"id": 51, "title": "スクワット（30秒×3）", "ability": "repeat", "desc": "一定ペースで。", "freq": "週2回"},
-    {"id": 52, "title": "ジャンプ連続（20秒）", "ability": "repeat", "desc": "疲れてもフォームを崩さない。", "freq": "週2回"},
-    {"id": 53, "title": "階段のぼり（30秒）", "ability": "repeat", "desc": "安全第一。息を整える。", "freq": "週2回"},
-    {"id": 54, "title": "サーキット（3種×2周）", "ability": "repeat", "desc": "短時間で全身。", "freq": "週2回"},
-    {"id": 55, "title": "縄跳び（1分×3）", "ability": "repeat", "desc": "軽く弾む。", "freq": "週2回"},
-    {"id": 56, "title": "シャトル（10m×10本）", "ability": "repeat", "desc": "全力より継続。", "freq": "週1回"},
-    {"id": 57, "title": "連続立ち幅跳び（フォーム）", "ability": "repeat", "desc": "“同じ跳び”を揃える。", "freq": "週2回"},
-    {"id": 58, "title": "テンポラン（軽）", "ability": "repeat", "desc": "話せる程度の強度で。", "freq": "週1回"},
-    {"id": 59, "title": "反復横跳び（20秒×3）", "ability": "repeat", "desc": "足幅を一定に。", "freq": "週2回"},
-    {"id": 60, "title": "全身リズム運動（5分）", "ability": "repeat", "desc": "継続できる形でOK。", "freq": "週3回"},
+    # throw（投力）ID 61-70
+    {"id": 61, "title": "両手上投げ", "ability": "throw", "desc": "全身を使って力を伝える感覚を養う。", "freq": "週2回", "image": "/images/trainings/throw_61.JPEG"},
+    {"id": 62, "title": "片手オーバースロー", "ability": "throw", "desc": "肩・体幹・下半身の連動を学ぶ。", "freq": "週2回", "image": "/images/trainings/throw_62.JPEG"},
+    {"id": 63, "title": "下投げ", "ability": "throw", "desc": "腕だけでなく脚の使い方を覚える。", "freq": "週2回", "image": "/images/trainings/throw_63.JPEG"},
+    {"id": 64, "title": "壁当てキャッチ", "ability": "throw", "desc": "投げる→受ける連動動作を強化。", "freq": "週2回", "image": "/images/trainings/throw_64.JPEG"},
+    {"id": 65, "title": "的当て投げ", "ability": "throw", "desc": "狙って投げるコントロール力を向上。", "freq": "週2回", "image": "/images/trainings/throw_65.JPEG"},
+    {"id": 66, "title": "膝立ち投げ", "ability": "throw", "desc": "体幹主導で投げる感覚を身につける。", "freq": "週2回", "image": "/images/trainings/throw_66.JPEG"},
+    {"id": 67, "title": "体ひねり投げ", "ability": "throw", "desc": "回旋動作によるパワー伝達を学ぶ。", "freq": "週2回", "image": "/images/trainings/throw_67.JPEG"},
+    {"id": 68, "title": "片足立ち投げ", "ability": "throw", "desc": "バランスを保ちながら投げる能力を養う。", "freq": "週2回", "image": "/images/trainings/throw_68.JPEG"},
+    {"id": 69, "title": "連続キャッチ＆投げ", "ability": "throw", "desc": "リズムと投動作の安定性を高める。", "freq": "週2回", "image": "/images/trainings/throw_69.JPEG"},
+    {"id": 70, "title": "重さ違いボール投げ", "ability": "throw", "desc": "力の出し分けと適応能力を向上。", "freq": "週1回", "image": "/images/trainings/throw_70.JPEG"},
 ]
 
 
@@ -189,8 +201,6 @@ def clamp(x: float, lo: float, hi: float) -> float:
 
 
 def decile_from_t(t: float) -> int:
-    # T=50を中心にざっくり10段階
-    # 1:<=30, 2:<=35, 3:<=40, ... 10:>=70
     cuts = [30, 35, 40, 45, 50, 55, 60, 65, 70]
     for i, c in enumerate(cuts, start=1):
         if t <= c:
@@ -211,13 +221,7 @@ def bar_pct_from_decile(d: int) -> int:
 
 
 def norm_mean_sd(test_key: str, sex: str, age_years: int) -> Tuple[float, float]:
-    """
-    本来は年齢×性別×種目の平均/SDだが、マスタ喪失のため
-    年齢による線形近似で “それっぽい” 平均/SD を復元。
-    """
     age = clamp(float(age_years), 6.0, 12.0)
-
-    # sex factor: male slightly higher in power/strength/throw (kids)
     s = 1.0 if sex == "male" else 0.97
 
     if test_key == "grip":
@@ -229,7 +233,6 @@ def norm_mean_sd(test_key: str, sex: str, age_years: int) -> Tuple[float, float]
         sd = 18.0
         return mean, sd
     if test_key == "dash_15m_sec":
-        # lower better, mean decreases with age
         mean = (3.7 - (age - 6.0) * 0.12) / s
         sd = 0.28
         return mean, sd
@@ -259,7 +262,6 @@ def t_score(test_key: str, value: float, sex: str, age_years: int) -> float:
         return 50.0
     z = (value - mean) / sd
 
-    # dash は “低いほど良い” なので z を反転
     if test_key == "dash_15m_sec":
         z = -z
 
@@ -268,6 +270,7 @@ def t_score(test_key: str, value: float, sex: str, age_years: int) -> float:
 
 
 def ability_scores_from_tests(test_t: Dict[str, float]) -> Dict[str, float]:
+    """✅ 7能力対応版"""
     acc = {a: 0.0 for a in ABILITIES}
     wsum = {a: 0.0 for a in ABILITIES}
     for tk, t in test_t.items():
@@ -282,9 +285,8 @@ def ability_scores_from_tests(test_t: Dict[str, float]) -> Dict[str, float]:
 
 
 def pick_type(ability_t: Dict[str, float]) -> Dict[str, str]:
-    # 上位2つでタイプ分け（簡易）
     top = sorted(ability_t.items(), key=lambda x: x[1], reverse=True)
-    a1, a2 = top[0][0], top[1][0]
+    a1 = top[0][0]
 
     if a1 == "speed":
         return {"key": "speed", "label": "スピード 伸びしろタイプ", "desc": "スピードが伸びやすい状態です。フォームと基礎練習で伸びが出やすいです。"}
@@ -296,11 +298,12 @@ def pick_type(ability_t: Dict[str, float]) -> Dict[str, str]:
         return {"key": "throw", "label": "投力 コントロールタイプ", "desc": "投げる動作の伸びが出やすいタイプです。"}
     if a1 == "strength":
         return {"key": "strength", "label": "筋力 土台タイプ", "desc": "体の土台が伸びやすいタイプです。"}
-    return {"key": "repeat", "label": "反復パワー 継続タイプ", "desc": "動きを繰り返す力が伸びやすいタイプです。"}
+    if a1 == "balance":
+        return {"key": "balance", "label": "バランス 安定タイプ", "desc": "姿勢制御能力が高く、技術習得がスムーズです。"}
+    return {"key": "endurance", "label": "筋持久力 継続タイプ", "desc": "動きを繰り返す力が伸びやすいタイプです。"}
 
 
 def pick_class(avg_t: float) -> Dict[str, str]:
-    # ざっくり3段階
     if avg_t >= 58:
         return {"key": "expert", "label": "上位（ハイレベル）"}
     if avg_t >= 45:
@@ -309,11 +312,7 @@ def pick_class(avg_t: float) -> Dict[str, str]:
 
 
 def motor_age_from_avg_t(age_years: int, avg_t: float) -> Tuple[float, str]:
-    """
-    運動器年齢（超簡易復元）
-    avg_t 50=同年代、60なら+1年、40なら-1年 のように寄せる
-    """
-    diff_year = (avg_t - 50.0) / 10.0  # T10点で1年
+    diff_year = (avg_t - 50.0) / 10.0
     val = clamp(age_years + diff_year, 6.0, 15.0)
     label = f"{int(round(val))}"
     return float(round(val, 1)), label
@@ -321,7 +320,6 @@ def motor_age_from_avg_t(age_years: int, avg_t: float) -> Tuple[float, str]:
 
 def sport_recommendations(ability_t: Dict[str, float], topn: int = 6) -> List[dict]:
     ranked = []
-    # 上位3能力を理由に出す
     top3 = [k for k, _ in sorted(ability_t.items(), key=lambda x: x[1], reverse=True)[:3]]
 
     for s in SPORT_MASTER:
@@ -341,6 +339,7 @@ def sport_recommendations(ability_t: Dict[str, float], topn: int = 6) -> List[di
 
 
 def training_focus(ability_t: Dict[str, float], per_ability: int = 6) -> List[dict]:
+    """✅ 7能力対応・下位2能力から各6種目選定"""
     bottom2 = [k for k, _ in sorted(ability_t.items(), key=lambda x: x[1])[:2]]
     out: List[dict] = []
     for a in bottom2:
@@ -354,6 +353,7 @@ def training_focus(ability_t: Dict[str, float], per_ability: int = 6) -> List[di
                     "ability_label": ABILITY_META[a]["label"],
                     "desc": it["desc"],
                     "frequency": it["freq"],
+                    "image": it.get("image"),
                 }
             )
     return out
@@ -367,7 +367,7 @@ def guardian_message(avg_t: float, top2: List[str], bottom2: List[str]) -> str:
         return f"同年代と比べて高めです。得意（{top_txt}）を伸ばしつつ、苦手（{bot_txt}）は週1〜2回の練習で底上げしましょう。"
     if avg_t >= 45:
         return f"同年代と同程度です。得意（{top_txt}）を維持しながら、苦手（{bot_txt}）を少しずつ伸ばすのがおすすめです。"
-    return f"これから伸びる時期です。まずは苦手（{bot_txt}）を週2回ほど練習して土台を作り、得意（{top_txt}）を活かせる運動を増やしましょう。"
+    return f"これから伸びる時期です。まずは苦手（{bot_txt}）を週2回ほど練���して土台を作り、得意（{top_txt}）を活かせる運動を増やしましょう。"
 
 
 def month_goal(bottom2: List[str]) -> str:
@@ -405,13 +405,6 @@ def _require_number(payload: dict, key: str) -> float:
 # Main API
 # =========================
 def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
-    """
-    payload 例:
-      patient_id,
-      grip_right, grip_left, standing_jump, dash_15m_sec, continuous_standing_jump,
-      squat_30s, side_step, ball_throw,
-      (optional) height_cm, weight_kg
-    """
     if not isinstance(payload, dict):
         raise CalcError("payload が不正です（JSON）")
 
@@ -420,7 +413,7 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
         raise CalcError("patient_id が必要です")
 
     try:
-        clinic_id_i = int(clinic_id)       # ← JWT由来
+        clinic_id_i = int(clinic_id)
         patient_id_i = int(patient_id)
     except Exception:
         raise CalcError("patient_id は整数で指定してください")
@@ -429,7 +422,6 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
     if not p:
         raise CalcError("患者が見つかりません（patient_id を確認）")
 
-    # age/sex from DB
     bd = p["birth_date"]
     if isinstance(bd, str):
         bd = datetime.strptime(bd[:10], "%Y-%m-%d").date()
@@ -439,7 +431,6 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
 
     age_y, age_m = calc_age_years_months(bd)
 
-    # measures
     grip_best = max(_require_number(payload, "grip_right"), _require_number(payload, "grip_left"))
     standing_jump = _require_number(payload, "standing_jump")
     dash_15 = _require_number(payload, "dash_15m_sec")
@@ -450,7 +441,6 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
     side_step = _require_number(payload, "side_step")
     ball_throw = _require_number(payload, "ball_throw")
 
-    # optional
     height_cm = payload.get("height_cm", None)
     weight_kg = payload.get("weight_kg", None)
     try:
@@ -472,13 +462,11 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
         "ball_throw": ball_throw,
     }
 
-    # T scores per test
     test_t = {k: t_score(k, v, sex, age_y) for k, v in test_values.items()}
 
-    # ability T
+    # ✅ 7能力のスコア計算
     ability_t = ability_scores_from_tests(test_t)
 
-    # top/bottom
     top2 = [k for k, _ in sorted(ability_t.items(), key=lambda x: x[1], reverse=True)[:2]]
     bottom2 = [k for k, _ in sorted(ability_t.items(), key=lambda x: x[1])[:2]]
 
@@ -488,7 +476,6 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
     tp = pick_type(ability_t)
     motor_age_val, motor_age_label = motor_age_from_avg_t(age_y, avg_t)
 
-    # response shapes (UI想定)
     tests_out = []
     for tk in TEST_KEYS:
         v = test_values[tk]
