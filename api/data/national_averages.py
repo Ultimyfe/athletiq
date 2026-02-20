@@ -47,21 +47,21 @@ NATIONAL_AVERAGES = {
             "grip": 15.42,
             "standing_jump": 143.24,
             "side_step": 38.14,
-            "ball_throw": None,  # 欠損
+            "ball_throw": 20.25,  # 欠損
             "dash_50m": 9.83,
         },
         10: {
             "grip": 17.60,
-            "standing_jump": None,  # 欠損
+            "standing_jump": 154.16,  # 欠損
             "side_step": 40.86,
-            "ball_throw": None,
+            "ball_throw": 24.26,
             "dash_50m": 9.48,
         },
         11: {
             "grip": 20.00,
-            "standing_jump": None,
+            "standing_jump": 163.17,
             "side_step": 44.11,
-            "ball_throw": None,
+            "ball_throw": 28.40,
             "dash_50m": 9.11,
         },
     },
@@ -89,23 +89,23 @@ NATIONAL_AVERAGES = {
         },
         9: {
             "grip": 14.46,
-            "standing_jump": None,
+            "standing_jump": 136.26,
             "side_step": 36.06,
-            "ball_throw": None,
+            "ball_throw": 12.17,
             "dash_50m": 10.08,
         },
         10: {
             "grip": 17.13,
-            "standing_jump": None,
+            "standing_jump": 147.87,
             "side_step": 38.91,
-            "ball_throw": None,
+            "ball_throw": 14.88,
             "dash_50m": 9.66,
         },
         11: {
             "grip": 19.44,
-            "standing_jump": None,
+            "standing_jump": 151.91,
             "side_step": 40.93,
-            "ball_throw": None,
+            "ball_throw": 16.52,
             "dash_50m": 9.44,
         },
     },
