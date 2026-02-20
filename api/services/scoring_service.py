@@ -552,6 +552,13 @@ from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+# ✅ 追加: 全国平均データのインポート
+from api.data.national_averages import (
+    get_national_mean_sd,
+    get_national_average,
+    get_sd_from_mean,
+)
+
 
 # =========================
 # Exceptions
@@ -760,40 +767,80 @@ def bar_pct_from_decile(d: int) -> int:
     return int(clamp(d, 1, 10) * 10)
 
 
-def norm_mean_sd(test_key: str, sex: str, age_years: int) -> Tuple[float, float]:
-    age = clamp(float(age_years), 6.0, 12.0)
+# ✅ 修正: 既存の推定式をフォールバック用に残す
+def _legacy_estimation(test_key: str, sex: str, age: int) -> Tuple[float, float]:
+    """
+    既存の推定式（全国平均がない場合のフォールバック）
+    """
     s = 1.0 if sex == "male" else 0.97
-
+    
     if test_key == "grip":
-        mean = (7.0 + (age - 6.0) * 1.4) * s
-        sd = 2.2
-        return mean, sd
+        return (7.0 + (age - 6.0) * 1.4) * s, 2.2
     if test_key == "standing_jump":
-        mean = (110 + (age - 6.0) * 7.5) * s
-        sd = 18.0
-        return mean, sd
+        return (110 + (age - 6.0) * 7.5) * s, 18.0
     if test_key == "dash_15m_sec":
-        mean = (3.7 - (age - 6.0) * 0.12) / s
-        sd = 0.28
-        return mean, sd
+        return (3.7 - (age - 6.0) * 0.12) / s, 0.28
     if test_key == "continuous_standing_jump":
-        # ✅ 3回分に変更（従来の1.5倍）
-        mean = (390 + (age - 6.0) * 30.0) * s
-        sd = 67.5
-        return mean, sd
+        return (390 + (age - 6.0) * 30.0) * s, 67.5
     if test_key == "squat_30s":
-        mean = (14 + (age - 6.0) * 1.8) * s
-        sd = 4.5
-        return mean, sd
+        return (14 + (age - 6.0) * 1.8) * s, 4.5
     if test_key == "side_step":
-        mean = (22 + (age - 6.0) * 2.4) * s
-        sd = 5.0
-        return mean, sd
+        return (22 + (age - 6.0) * 2.4) * s, 5.0
     if test_key == "ball_throw":
-        mean = (6.0 + (age - 6.0) * 1.2) * s
-        sd = 2.0
-        return mean, sd
+        return (6.0 + (age - 6.0) * 1.2) * s, 2.0
+    
+    return 0.0, 1.0
 
+
+# ✅ 完全書き換え: 全国平均ベースの norm_mean_sd
+def norm_mean_sd(test_key: str, sex: str, age_years: int) -> Tuple[float, float]:
+    """
+    種目ごとの平均・標準偏差を返す（全国平均データベース）
+    
+    優先順位:
+    1. 全国平均データ（実測値）
+    2. 換算ロジック（連続立ち幅跳び、15m走）
+    3. 独自種目（スクワット）
+    4. フォールバック（推定式）
+    """
+    age = clamp(int(age_years), 6, 11)
+    
+    # ✅ 全国平均データから取得（握力・立ち幅跳び・反復横跳び・ボール投げ）
+    if test_key in ["grip", "standing_jump", "side_step", "ball_throw"]:
+        avg, sd = get_national_mean_sd(test_key, sex, age)
+        
+        # 欠損時は推定式にフォールバック
+        if avg is None:
+            return _legacy_estimation(test_key, sex, age)
+        
+        return avg, sd
+    
+    # 🔄 連続立ち幅跳び = 立ち幅跳び × 3
+    if test_key == "continuous_standing_jump":
+        avg_single = get_national_average("standing_jump", sex, age)
+        
+        if avg_single is None:
+            return _legacy_estimation(test_key, sex, age)
+        
+        avg_triple = avg_single * 3
+        sd_triple = get_sd_from_mean("standing_jump", avg_single) * 3
+        return avg_triple, sd_triple
+    
+    # 🔄 15m走 = 50m走 × 0.38（加速区間推定）
+    if test_key == "dash_15m_sec":
+        avg_50m = get_national_average("dash_50m", sex, age)
+        
+        if avg_50m is None:
+            return _legacy_estimation(test_key, sex, age)
+        
+        avg_15m = avg_50m * 0.38
+        sd_15m = get_sd_from_mean("dash_15m_sec", avg_15m)
+        return avg_15m, sd_15m
+    
+    # 🔧 独自種目（全国平均なし）→ 既存ロジック維持
+    if test_key == "squat_30s":
+        return _legacy_estimation(test_key, sex, age)
+    
     return 0.0, 1.0
 
 
@@ -840,7 +887,7 @@ def pick_type(ability_t: Dict[str, float]) -> Dict[str, str]:
         return {"key": "strength", "label": "筋力 土台タイプ", "desc": "体の土台が伸びやすいタイプです。"}
     if a1 == "balance":
         return {"key": "balance", "label": "バランス 安定タイプ", "desc": "姿勢制御能力が高く、技術習得がスムーズです。"}
-    return {"key": "endurance", "label": "筋持久力 継続タイ��", "desc": "動きを繰り返す力が伸びやすいタイプです。"}
+    return {"key": "endurance", "label": "筋持久力 継続タイプ", "desc": "動きを繰り返す力が伸びやすいタイプです。"}
 
 
 def pick_class(avg_t: float) -> Dict[str, str]:
@@ -945,7 +992,7 @@ def _require_number(payload: dict, key: str) -> float:
 # =========================
 def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
     if not isinstance(payload, dict):
-        raise CalcError("payload が不正です（JSON）")
+        raise CalcError("payload が���正です（JSON）")
 
     patient_id = payload.get("patient_id")
     if patient_id is None:
