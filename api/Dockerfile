@@ -43,6 +43,7 @@ RUN mkdir -p /app/api && \
       models \
       schemas \
       services \
+      data \
       tests \
     /app/api/
 
