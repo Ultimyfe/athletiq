@@ -1036,7 +1036,7 @@ export default function MeasurePage() {
               />
               <InputFloat
                 label="連続立ち幅跳び"
-                note="連続2回の合計距離（cm）"
+                note="連続3回の合計距離（cm）"
                 placeholder="例：440"
                 value={form.continuous_jump_cm}
                 onChange={(v) => update("continuous_jump_cm", v)}
