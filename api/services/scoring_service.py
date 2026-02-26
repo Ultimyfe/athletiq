@@ -543,6 +543,9 @@
 #     }
 
 # api/services/scoring_service.py
+# 
+
+# api/services/scoring_service.py
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -584,7 +587,7 @@ TEST_META = {
     "grip": {"label": "握力", "unit": "kg"},
     "standing_jump": {"label": "立ち幅跳び", "unit": "cm"},
     "dash_15m_sec": {"label": "15m走", "unit": "秒"},
-    "continuous_standing_jump": {"label": "連続立ち幅跳び（合計）", "unit": "cm"},
+    "continuous_standing_jump": {"label": "連続立ち幅跳び(合計)", "unit": "cm"},
     "squat_30s": {"label": "30秒スクワット", "unit": "回"},
     "side_step": {"label": "反復横跳び", "unit": "回"},
     "ball_throw": {"label": "ボール投げ", "unit": "m"},
@@ -593,7 +596,7 @@ TEST_META = {
 ABILITIES = ["strength", "power", "speed", "balance", "endurance", "agility", "throw"]
 
 ABILITY_META = {
-    "strength": {"label": "筋力（握力）"},
+    "strength": {"label": "筋力(握力)"},
     "power": {"label": "瞬発力"},
     "speed": {"label": "移動能力"},
     "balance": {"label": "バランス"},
@@ -621,8 +624,8 @@ SPORT_MASTER: List[dict] = [
     {"sport": "野球", "emoji": "⚾️", "w": {"throw": 1.3, "power": 1.0, "speed": 0.7, "agility": 0.7, "strength": 0.5, "endurance": 0.3, "balance": 0.5}},
     {"sport": "バスケットボール", "emoji": "🏀", "w": {"power": 1.2, "agility": 1.0, "speed": 0.9, "endurance": 0.8, "strength": 0.6, "throw": 0.2, "balance": 0.6}},
     {"sport": "バレーボール", "emoji": "🏐", "w": {"power": 1.3, "agility": 0.9, "speed": 0.7, "endurance": 0.7, "strength": 0.5, "throw": 0.2, "balance": 0.5}},
-    {"sport": "陸上（短距離）", "emoji": "🏃‍♂️", "w": {"speed": 1.5, "power": 1.1, "agility": 0.5, "endurance": 0.6, "strength": 0.3, "throw": 0.0, "balance": 0.4}},
-    {"sport": "陸上（中距離）", "emoji": "🏃", "w": {"endurance": 1.5, "speed": 1.0, "agility": 0.4, "power": 0.5, "strength": 0.3, "throw": 0.0, "balance": 0.5}},
+    {"sport": "陸上(短距離)", "emoji": "🏃‍♂️", "w": {"speed": 1.5, "power": 1.1, "agility": 0.5, "endurance": 0.6, "strength": 0.3, "throw": 0.0, "balance": 0.4}},
+    {"sport": "陸上(中距離)", "emoji": "🏃", "w": {"endurance": 1.5, "speed": 1.0, "agility": 0.4, "power": 0.5, "strength": 0.3, "throw": 0.0, "balance": 0.5}},
     {"sport": "体操", "emoji": "🤸", "w": {"balance": 1.4, "agility": 1.2, "power": 1.0, "strength": 0.8, "endurance": 0.6, "speed": 0.4, "throw": 0.0}},
     {"sport": "水泳", "emoji": "🏊", "w": {"endurance": 1.3, "power": 0.8, "strength": 0.7, "speed": 0.7, "agility": 0.3, "throw": 0.0, "balance": 0.4}},
     {"sport": "テニス", "emoji": "🎾", "w": {"agility": 1.2, "speed": 1.0, "power": 0.8, "endurance": 0.7, "strength": 0.4, "throw": 0.1, "balance": 0.6}},
@@ -637,18 +640,18 @@ SPORT_MASTER: List[dict] = [
 ]
 
 TRAINING_MASTER: List[dict] = [
-    # strength（筋力・握力）ID 1-10
+    # strength(筋力・握力)ID 1-10
     {"id": 1, "title": "タオル握りスクイーズ", "ability": "strength", "desc": "指・前腕を使って握る力を鍛え、物をつかむ基礎力を高める。", "freq": "週3回", "image": "/images/trainings/strength_01.JPEG"},
     {"id": 2, "title": "雑巾しぼり", "ability": "strength", "desc": "左右差なく前腕と手指を使い、日常動作に直結する握力を養う。", "freq": "週3回", "image": "/images/trainings/strength_02.JPEG"},
-    {"id": 3, "title": "ぶら下がり", "ability": "strength", "desc": "体重を支えることで握力＋肩・体幹の支持力も同時に強化。", "freq": "週2回", "image": "/images/trainings/strength_03.JPEG"},
+    {"id": 3, "title": "ぶら下がり", "ability": "strength", "desc": "体重を支えることで握力+肩・体幹の支持力も同時に強化。", "freq": "週2回", "image": "/images/trainings/strength_03.JPEG"},
     {"id": 4, "title": "クマ歩き", "ability": "strength", "desc": "手で体を支えるため、握力と上半身の連動力が高まる。", "freq": "週2回", "image": "/images/trainings/strength_04.JPEG"},
     {"id": 5, "title": "カニ歩き", "ability": "strength", "desc": "手と足で体重を分散し、持続的な握力と体幹安定性を養う。", "freq": "週2回", "image": "/images/trainings/strength_05.JPEG"},
     {"id": 6, "title": "プランク手支持", "ability": "strength", "desc": "手で床を押すことで手指・前腕の支持力を強化。", "freq": "週3回", "image": "/images/trainings/strength_06.JPEG"},
     {"id": 7, "title": "ペットボトル持ち替え", "ability": "strength", "desc": "握る→離す動作で巧緻性と握力のコントロール力を鍛える。", "freq": "週2回", "image": "/images/trainings/strength_07.JPEG"},
-    {"id": 8, "title": "指立て伏せ（簡易）", "ability": "strength", "desc": "指に体重を分散させ、指先の力と安定性を高める。", "freq": "週2回", "image": "/images/trainings/strength_08.JPEG"},
+    {"id": 8, "title": "指立て伏せ(簡易)", "ability": "strength", "desc": "指に体重を分散させ、指先の力と安定性を高める。", "freq": "週2回", "image": "/images/trainings/strength_08.JPEG"},
     {"id": 9, "title": "ボール潰し", "ability": "strength", "desc": "最大握力を直接刺激し、握る瞬間の力発揮を強化。", "freq": "週2回", "image": "/images/trainings/strength_09.JPEG"},
-    {"id": 10, "title": "ロープ引き（タオル）", "ability": "strength", "desc": "引く動作で握力＋背中・体幹の連動を鍛える。", "freq": "週2回", "image": "/images/trainings/strength_10.JPEG"},
-    # power（瞬発力）ID 11-20
+    {"id": 10, "title": "ロープ引き(タオル)", "ability": "strength", "desc": "引く動作で握力+背中・体幹の連動を鍛える。", "freq": "週2回", "image": "/images/trainings/strength_10.JPEG"},
+    # power(瞬発力)ID 11-20
     {"id": 11, "title": "その場ジャンプ", "ability": "power", "desc": "一瞬で地面を押す力を高め、跳ぶ基礎能力を作る。", "freq": "週2回", "image": "/images/trainings/power_11.JPEG"},
     {"id": 12, "title": "連続ジャンプ", "ability": "power", "desc": "反発を使った素早い力発揮を覚える。", "freq": "週2回", "image": "/images/trainings/power_12.JPEG"},
     {"id": 13, "title": "スクワットジャンプ", "ability": "power", "desc": "下半身の筋力を一気に使う力を養う。", "freq": "週2回", "image": "/images/trainings/power_13.JPEG"},
@@ -660,7 +663,7 @@ TRAINING_MASTER: List[dict] = [
     {"id": 19, "title": "キャッチ→即ジャンプ", "ability": "power", "desc": "動作切り替え能力と瞬発力を同時に強化。", "freq": "週2回", "image": "/images/trainings/power_19.JPEG"},
     {"id": 20, "title": "片足ジャンプ", "ability": "power", "desc": "片脚で力を出す能力とバランスを向上。", "freq": "週2回", "image": "/images/trainings/power_20.JPEG"},
 
-    # speed（移動能力）ID 21-30
+    # speed(移動能力)ID 21-30
     {"id": 21, "title": "クマ歩き前進", "ability": "speed", "desc": "全身を連動させて前に進む基礎移動能力を高める。", "freq": "週2回", "image": "/images/trainings/speed_21.JPEG"},
     {"id": 22, "title": "クマ歩き後退", "ability": "speed", "desc": "後ろへの移動で空間認知と身体操作力を向上。", "freq": "週2回", "image": "/images/trainings/speed_22.JPEG"},
     {"id": 23, "title": "カニ歩き横移動", "ability": "speed", "desc": "横方向への移動能力と体幹安定性を強化。", "freq": "週2回", "image": "/images/trainings/speed_23.JPEG"},
@@ -672,19 +675,19 @@ TRAINING_MASTER: List[dict] = [
     {"id": 29, "title": "ハイハイ移動", "ability": "speed", "desc": "左右の協調性と体幹主導の移動を身につける。", "freq": "週2回", "image": "/images/trainings/speed_29.JPEG"},
     {"id": 30, "title": "8の字走", "ability": "speed", "desc": "連続した方向変換に対応する能力を鍛える。", "freq": "週2回", "image": "/images/trainings/speed_30.JPEG"},
 
-    # balance（バランス）ID 31-40
+    # balance(バランス)ID 31-40
     {"id": 31, "title": "片足立ち", "ability": "balance", "desc": "重心をコントロールする基本能力を養う。", "freq": "週3回", "image": "/images/trainings/balance_31.JPEG"},
     {"id": 32, "title": "目閉じ片足立ち", "ability": "balance", "desc": "視覚に頼らないバランス感覚を鍛える。", "freq": "週2回", "image": "/images/trainings/balance_32.JPEG"},
     {"id": 33, "title": "片足スクワット", "ability": "balance", "desc": "動きながらバランスを保つ力を強化。", "freq": "週2回", "image": "/images/trainings/balance_33.JPEG"},
     {"id": 34, "title": "つま先立ちキープ", "ability": "balance", "desc": "足首の安定性と姿勢保持力を高める。", "freq": "週3回", "image": "/images/trainings/balance_34.JPEG"},
     {"id": 35, "title": "かかと立ちキープ", "ability": "balance", "desc": "前後の重心コントロールを向上。", "freq": "週3回", "image": "/images/trainings/balance_35.JPEG"},
     {"id": 36, "title": "バランスボード", "ability": "balance", "desc": "不安定環境で姿勢調整力を養う。", "freq": "週2回", "image": "/images/trainings/balance_36.JPEG"},
-    {"id": 37, "title": "片足キャッチ", "ability": "balance", "desc": "バランス＋上肢操作を同時に鍛える。", "freq": "週2回", "image": "/images/trainings/balance_37.JPEG"},
+    {"id": 37, "title": "片足キャッチ", "ability": "balance", "desc": "バランス+上肢操作を同時に鍛える。", "freq": "週2回", "image": "/images/trainings/balance_37.JPEG"},
     {"id": 38, "title": "片足ジャンプ着地", "ability": "balance", "desc": "着地時の衝撃吸収と安定性を向上。", "freq": "週2回", "image": "/images/trainings/balance_38.JPEG"},
     {"id": 39, "title": "T字バランス", "ability": "balance", "desc": "体幹と下肢を一直線で支える能力を養う。", "freq": "週2回", "image": "/images/trainings/balance_39.JPEG"},
     {"id": 40, "title": "不安定姿勢で投げ", "ability": "balance", "desc": "崩れながらも姿勢を立て直す力を育てる。", "freq": "週1回", "image": "/images/trainings/balance_40.JPEG"},
 
-    # endurance（筋持久力）ID 41-50
+    # endurance(筋持久力)ID 41-50
     {"id": 41, "title": "スクワット連続", "ability": "endurance", "desc": "下半身を使い続ける力を鍛える。", "freq": "週2回", "image": "/images/trainings/endurance_41.JPEG"},
     {"id": 42, "title": "プランク", "ability": "endurance", "desc": "体幹を安定させたまま耐える力を強化。", "freq": "週3回", "image": "/images/trainings/endurance_42.JPEG"},
     {"id": 43, "title": "壁スクワット", "ability": "endurance", "desc": "静的姿勢で筋肉を使い続ける能力を養う。", "freq": "週2回", "image": "/images/trainings/endurance_43.JPEG"},
@@ -692,10 +695,10 @@ TRAINING_MASTER: List[dict] = [
     {"id": 45, "title": "マウンテンクライマー", "ability": "endurance", "desc": "全身を使った持久的運動能力を高める。", "freq": "週2回", "image": "/images/trainings/endurance_45.JPEG"},
     {"id": 46, "title": "連続ジャンプ30秒", "ability": "endurance", "desc": "疲れても動きを維持する力を養う。", "freq": "週2回", "image": "/images/trainings/endurance_46.JPEG"},
     {"id": 47, "title": "その場もも上げ", "ability": "endurance", "desc": "走動作に必要な下肢持久力を強化。", "freq": "週2回", "image": "/images/trainings/endurance_47.JPEG"},
-    {"id": 48, "title": "クマ歩き往復", "ability": "endurance", "desc": "全身の筋持久力をバランスよく鍛える。", "freq": "週2回", "image": "/images/trainings/endurance_48.JPEG"},
+    {"id": 48, "title": "クマ歩き往復", "ability": "endurance", "desc": "全身の筋持久力をバ��ンスよく鍛える。", "freq": "週2回", "image": "/images/trainings/endurance_48.JPEG"},
     {"id": 49, "title": "軽めバーピー", "ability": "endurance", "desc": "全身を使い続ける体力を向上。", "freq": "週2回", "image": "/images/trainings/endurance_49.JPEG"},
     {"id": 50, "title": "なわとび", "ability": "endurance", "desc": "リズムを保ちながら持久的に動く力を育てる。", "freq": "週3回", "image": "/images/trainings/endurance_50.JPEG"},
-    # agility（敏捷性）ID 51-60
+    # agility(敏捷性)ID 51-60
     {"id": 51, "title": "ラダートレーニング", "ability": "agility", "desc": "素早い足さばきとリズム感を養う。", "freq": "週2回", "image": "/images/trainings/agility_51.JPEG"},
     {"id": 52, "title": "サイドタッチ", "ability": "agility", "desc": "左右への素早い切り替えを強化。", "freq": "週2回", "image": "/images/trainings/agility_52.JPEG"},
     {"id": 53, "title": "色タッチ反応", "ability": "agility", "desc": "判断→動作の速さを高める。", "freq": "週2回", "image": "/images/trainings/agility_53.JPEG"},
@@ -704,10 +707,10 @@ TRAINING_MASTER: List[dict] = [
     {"id": 56, "title": "方向転換走", "ability": "agility", "desc": "急な切り返し能力を向上。", "freq": "週2回", "image": "/images/trainings/agility_56.JPEG"},
     {"id": 57, "title": "反応キャッチ", "ability": "agility", "desc": "目と体の連動スピードを高める。", "freq": "週2回", "image": "/images/trainings/agility_57.JPEG"},
     {"id": 58, "title": "ミラームーブ", "ability": "agility", "desc": "相手の動きを即座に真似る反応力を養う。", "freq": "週2回", "image": "/images/trainings/agility_58.JPEG"},
-    {"id": 59, "title": "じゃんけんダッシュ", "ability": "agility", "desc": "判断力＋瞬時の行動力を鍛える。", "freq": "週2回", "image": "/images/trainings/agility_59.JPEG"},
-    {"id": 60, "title": "ストップ＆ゴー走", "ability": "agility", "desc": "止まる→動く切り替え能力を強化。", "freq": "週2回", "image": "/images/trainings/agility_60.JPEG"},
+    {"id": 59, "title": "じゃんけんダッシュ", "ability": "agility", "desc": "判断力+瞬時の行動力を鍛える。", "freq": "週2回", "image": "/images/trainings/agility_59.JPEG"},
+    {"id": 60, "title": "ストップ&ゴー走", "ability": "agility", "desc": "止まる→動く切り替え能力を強化。", "freq": "週2回", "image": "/images/trainings/agility_60.JPEG"},
 
-    # throw（投力）ID 61-70
+    # throw(投力)ID 61-70
     {"id": 61, "title": "両手上投げ", "ability": "throw", "desc": "全身を使って力を伝える感覚を養う。", "freq": "週2回", "image": "/images/trainings/throw_61.JPEG"},
     {"id": 62, "title": "片手オーバースロー", "ability": "throw", "desc": "肩・体幹・下半身の連動を学ぶ。", "freq": "週2回", "image": "/images/trainings/throw_62.JPEG"},
     {"id": 63, "title": "下投げ", "ability": "throw", "desc": "腕だけでなく脚の使い方を覚える。", "freq": "週2回", "image": "/images/trainings/throw_63.JPEG"},
@@ -716,7 +719,7 @@ TRAINING_MASTER: List[dict] = [
     {"id": 66, "title": "膝立ち投げ", "ability": "throw", "desc": "体幹主導で投げる感覚を身につける。", "freq": "週2回", "image": "/images/trainings/throw_66.JPEG"},
     {"id": 67, "title": "体ひねり投げ", "ability": "throw", "desc": "回旋動作によるパワー伝達を学ぶ。", "freq": "週2回", "image": "/images/trainings/throw_67.JPEG"},
     {"id": 68, "title": "片足立ち投げ", "ability": "throw", "desc": "バランスを保ちながら投げる能力を養う。", "freq": "週2回", "image": "/images/trainings/throw_68.JPEG"},
-    {"id": 69, "title": "連続キャッチ＆投げ", "ability": "throw", "desc": "リズムと投動作の安定性を高める。", "freq": "週2回", "image": "/images/trainings/throw_69.JPEG"},
+    {"id": 69, "title": "連続キャッチ&投げ", "ability": "throw", "desc": "リズムと投動作の安定性を高める。", "freq": "週2回", "image": "/images/trainings/throw_69.JPEG"},
     {"id": 70, "title": "重さ違いボール投げ", "ability": "throw", "desc": "力の出し分けと適応能力を向上。", "freq": "週1回", "image": "/images/trainings/throw_70.JPEG"},
 ]
 
@@ -770,7 +773,7 @@ def bar_pct_from_decile(d: int) -> int:
 # ✅ 修正: 既存の推定式をフォールバック用に残す
 def _legacy_estimation(test_key: str, sex: str, age: int) -> Tuple[float, float]:
     """
-    既存の推定式（全国平均がない場合のフォールバック）
+    既存の推定式(全国平均がない場合のフォールバック)
     """
     s = 1.0 if sex == "male" else 0.97
     
@@ -795,17 +798,17 @@ def _legacy_estimation(test_key: str, sex: str, age: int) -> Tuple[float, float]
 # ✅ 完全書き換え: 全国平均ベースの norm_mean_sd
 def norm_mean_sd(test_key: str, sex: str, age_years: int) -> Tuple[float, float]:
     """
-    種目ごとの平均・標準偏差を返す（全国平均データベース）
+    種目ごとの平均・標準偏差を返す(全国平均データベース)
     
     優先順位:
-    1. 全国平均データ（実測値）
-    2. 換算ロジック（連続立ち幅跳び、15m走）
-    3. 独自種目（スクワット）
-    4. フォールバック（推定式）
+    1. 全国平均データ(実測値)
+    2. 換算ロジック(連続立ち幅跳び、15m走)
+    3. 独自種目(スクワット)
+    4. フォールバック(推定式)
     """
     age = clamp(int(age_years), 6, 11)
     
-    # ✅ 全国平均データから取得（握力・立ち幅跳び・反復横跳び・ボール投げ）
+    # ✅ 全国平均データから取得(握力・立ち幅跳び・反復横跳び・ボール投げ)
     if test_key in ["grip", "standing_jump", "side_step", "ball_throw"]:
         avg, sd = get_national_mean_sd(test_key, sex, age)
         
@@ -826,7 +829,7 @@ def norm_mean_sd(test_key: str, sex: str, age_years: int) -> Tuple[float, float]
         sd_triple = get_sd_from_mean("standing_jump", avg_single) * 3
         return avg_triple, sd_triple
     
-    # 🔄 15m走 = 50m走 × 0.38（加速区間推定）
+    # 🔄 15m走 = 50m走 × 0.38(加速区間推定)
     if test_key == "dash_15m_sec":
         avg_50m = get_national_average("dash_50m", sex, age)
         
@@ -837,7 +840,7 @@ def norm_mean_sd(test_key: str, sex: str, age_years: int) -> Tuple[float, float]
         sd_15m = get_sd_from_mean("dash_15m_sec", avg_15m)
         return avg_15m, sd_15m
     
-    # 🔧 独自種目（全国平均なし）→ 既存ロジック維持
+    # 🔧 独自種目(全国平均なし)→ 既存ロジック維持
     if test_key == "squat_30s":
         return _legacy_estimation(test_key, sex, age)
     
@@ -892,10 +895,10 @@ def pick_type(ability_t: Dict[str, float]) -> Dict[str, str]:
 
 def pick_class(avg_t: float) -> Dict[str, str]:
     if avg_t >= 58:
-        return {"key": "expert", "label": "上位（ハイレベル）"}
+        return {"key": "expert", "label": "上位(ハイレベル)"}
     if avg_t >= 45:
-        return {"key": "standard", "label": "標準（スタンダード）"}
-    return {"key": "beginner", "label": "基礎（伸びしろ大）"}
+        return {"key": "standard", "label": "標準(スタンダード)"}
+    return {"key": "beginner", "label": "基礎(伸びしろ大)"}
 
 
 def motor_age_from_avg_t(age_years: int, avg_t: float) -> Tuple[float, str]:
@@ -918,7 +921,7 @@ def sport_recommendations(ability_t: Dict[str, float], topn: int = 6) -> List[di
                 "sport": s["sport"],
                 "emoji": s["emoji"],
                 "score": round(score, 1),
-                "reason": f"強み（{ABILITY_META[top3[0]]['label']}・{ABILITY_META[top3[1]]['label']}）を活かしやすい",
+                "reason": f"強み({ABILITY_META[top3[0]]['label']}・{ABILITY_META[top3[1]]['label']})を活かしやすい",
             }
         )
     ranked.sort(key=lambda x: x["score"], reverse=True)
@@ -950,16 +953,16 @@ def guardian_message(avg_t: float, top2: List[str], bottom2: List[str]) -> str:
     bot_txt = "・".join([ABILITY_META[a]["label"] for a in bottom2])
 
     if avg_t >= 55:
-        return f"同年代と比べて高めです。得意（{top_txt}）を伸ばしつつ、苦手（{bot_txt}）は週1〜2回の練習で底上げしましょう。"
+        return f"同年代と比べて高めです。得意({top_txt})を伸ばしつつ、苦手({bot_txt})は週1〜2回の練習で底上げしましょう。"
     if avg_t >= 45:
-        return f"同年代と同程度です。得意（{top_txt}）を維持しながら、苦手（{bot_txt}）を少しずつ伸ばすのがおすすめです。"
-    return f"これから伸びる時期です。まずは苦手（{bot_txt}）を週2回ほど練習して土台を作り、得意（{top_txt}）を活かせる運動を増やしましょう。"
+        return f"同年代と同程度です。得意({top_txt})を維持しながら、苦手({bot_txt})を少しずつ伸ばすのがおすすめです。"
+    return f"これから伸びる時期です。まずは苦手({bot_txt})を週2回ほど練習して土台を作り、得意({top_txt})を活かせる運動を増やしましょう。"
 
 
 def month_goal(bottom2: List[str]) -> str:
     a = ABILITY_META[bottom2[0]]["label"]
     b = ABILITY_META[bottom2[1]]["label"]
-    return f"最初の1ヶ月は「{a}」「{b}」の底上げに集中（週2回×10分〜）。フォームと基礎を揃えることが最優先です。"
+    return f"最初の1ヶ月は「{a}」「{b}」の底上げに集中(週2回×10分〜)。フォームと基礎を揃えることが最優先です。"
 
 
 def fetch_patient(db: Session, clinic_id: int, patient_id: int) -> Optional[dict]:
@@ -992,7 +995,7 @@ def _require_number(payload: dict, key: str) -> float:
 # =========================
 def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
     if not isinstance(payload, dict):
-        raise CalcError("payload が���正です（JSON）")
+        raise CalcError("payload が不正です(JSON)")
 
     patient_id = payload.get("patient_id")
     if patient_id is None:
@@ -1006,7 +1009,7 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
 
     p = fetch_patient(db, clinic_id_i, patient_id_i)
     if not p:
-        raise CalcError("患者が見つかりません（patient_id を確認）")
+        raise CalcError("患者が見つかりません(patient_id を確認)")
 
     bd = p["birth_date"]
     if isinstance(bd, str):
@@ -1037,6 +1040,19 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
         weight_kg = float(weight_kg) if weight_kg is not None and str(weight_kg).strip() != "" else None
     except Exception:
         weight_kg = None
+
+    # ✅ 修正: payloadから測定日を取得(フォールバックは今日の日付)
+    measured_at_str = payload.get("measured_at")
+    if measured_at_str and isinstance(measured_at_str, str):
+        try:
+            # YYYY-MM-DD形式のバリデーション
+            measured_at = datetime.strptime(measured_at_str[:10], "%Y-%m-%d").date().isoformat()
+        except Exception:
+            # パースエラー時は今日の日付にフォールバック
+            measured_at = date.today().isoformat()
+    else:
+        # measured_atが指定されていない場合は今日の日付
+        measured_at = date.today().isoformat()
 
     test_values = {
         "grip": grip_best,
@@ -1096,10 +1112,8 @@ def diagnose(db: Session, clinic_id: int, payload: dict) -> dict:
     sports_top6 = sport_recommendations(ability_t, topn=6)
     trainings_focus = training_focus(ability_t, per_ability=6)
 
-    measured_at = date.today().isoformat()
-
     return {
-        "meta": {"measured_at": measured_at},
+        "meta": {"measured_at": measured_at},  # ✅ payloadから取得した測定日を使用
         "user": {
             "name": f"{p['last_name']} {p['first_name']}",
             "sex": sex,
